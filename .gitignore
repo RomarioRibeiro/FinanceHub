@@ -1,0 +1,17 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+
+# Arquivos de usuário
+*.user
+*.suo
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# Rider
+.idea/

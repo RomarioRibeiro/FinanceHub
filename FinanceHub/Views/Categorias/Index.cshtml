@@ -1,0 +1,53 @@
+﻿@model IEnumerable<FinanceHub.Models.Categoria>
+
+@{
+    ViewData["Title"] = "Lista de Categoria";
+}
+<link rel="stylesheet" href="~/css/categoria.css" asp-append-version="true" />
+
+<h2>@ViewData["Title"]</h2>
+<p>
+    <a class="btn btn-primary" asp-action="Create">Novo</a>
+</p>
+<div class="card">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Nome)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Descricao)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TipoCategoria)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Nome)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Descricao)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TipoCategoria)
+                        </td>
+                        <td class="botoes">
+                            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id"><i class="fa fa-pen"></i></a>
+                            <a class="btn btn-primary" asp-action="Details" asp-route-id="@item.Id"><i class="fa-solid fa-circle-info"></i></a>
+                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id"><i class="fa fa-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>

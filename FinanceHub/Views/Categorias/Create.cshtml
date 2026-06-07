@@ -1,0 +1,49 @@
+﻿@using FinanceHub.Models.Enums
+@model FinanceHub.Models.Categoria
+
+@{
+    ViewData["Title"] = "Cadastro Categoria";
+}
+<link rel="stylesheet" href="~/css/categoria.css" asp-append-version="true" />
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+<div class="card">
+    <div class="card-body">
+
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="col-4">
+                    <label>Nome <span class="obrigatorio">*</span></label>
+                    <input asp-for="Nome" class="form-control" />
+                    <span asp-validation-for="Nome" class="text-danger"></span>
+                </div>
+                <div class="col-4">
+                    <label>Descricao <span class="obrigatorio">*</span></label>
+                    <input asp-for="Descricao" class="form-control" />
+                    <span asp-validation-for="Descricao" class="text-danger"></span>
+                </div>
+                <div class="col-4">
+                    <label asp-for="TipoCategoria" class="control-label"></label>
+                    <select asp-for="TipoCategoria" asp-items="Html.GetEnumSelectList<TipoCategoria>()" class="form-control"></select>
+                </div>
+            </div>
+        <div class="row">
+            <div class="col" style="margin-top: 10px">
+                <input type="submit" value="Salvar" class="btn btn-primary" />
+                <a class="btn btn-primary" asp-action="Index">Voltar</a>
+            </div>      
+        </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
