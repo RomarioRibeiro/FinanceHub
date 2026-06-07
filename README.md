@@ -1,6 +1,3 @@
-README profissional
-
-Exemplo:
 
 Descrição do projeto
 Tecnologias usadas
