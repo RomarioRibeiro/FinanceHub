@@ -1,66 +1,51 @@
-﻿using FinanceHub.Data;
 using FinanceHub.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
+using FinanceHub.Repositories;
 
 namespace FinanceHub.Services
 {
     public class CategoriaService
     {
-        private readonly FinanceHubContext _context;
+        private readonly IRepository<Categoria> _repository;
 
-        public CategoriaService(FinanceHubContext context)
+        public CategoriaService(IRepository<Categoria> repository)
         {
-            _context = context;
+            _repository = repository;
         }
-
 
         public async Task<List<Categoria>> FindAllAsync()
         {
-            return await _context.Categoria.ToListAsync();
+            return await _repository.FindAllAsync();
         }
 
         public async Task<Categoria> FindByIdAsync(int id)
         {
-            return await _context.Categoria.FirstOrDefaultAsync(obj => obj.Id == id);
+            return await _repository.FindByIdAsync(id);
         }
 
         public async Task InsertAsync(Categoria categoria)
         {
-            _context.Add(categoria);
-            _context.SaveChanges();
+            await _repository.InsertAsync(categoria);
         }
 
         public async Task Update(Categoria categoria)
         {
-            bool isCategoria = await _context.Categoria.AnyAsync(obj => obj.Id == categoria.Id);
-            if (!isCategoria)
+            if (!await _repository.ExistsAsync(categoria.Id))
             {
                 throw new Exception();
             }
-            try
-            {
-                _context.Update(categoria);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                throw new Exception(ex.Message);
-            }
+
+            await _repository.UpdateAsync(categoria);
         }
 
         public async Task RemoveAsync(int id)
         {
-            try
+            var entity = await _repository.FindByIdAsync(id);
+            if (entity == null)
             {
-                var obj = await _context.Categoria.FindAsync(id);
-                _context.Remove(obj);
-                await _context.SaveChangesAsync();
+                throw new Exception();
             }
-            catch (Exception ex)
-            {
-            }
-        }
 
+            await _repository.RemoveAsync(entity);
+        }
     }
 }

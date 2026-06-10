@@ -1,0 +1,15 @@
+@model FinanceHub.Models.Saldo
+
+@{
+    ViewData["Title"] = "Excluir Saldo";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h3>Deseja excluir este saldo?</h3>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Excluir</button>
+    <a class="btn btn-secondary" asp-action="Index">Voltar</a>
+</form>

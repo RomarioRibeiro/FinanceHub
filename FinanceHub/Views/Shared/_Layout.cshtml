@@ -1,5 +1,11 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var cadastrosAtivo = new[] { "Usuarios", "Perfis", "Categorias", "Contas" }.Contains(currentController);
+    var movimentacoesAtivo = new[] { "Transacoes", "LancamentosRecorrentes", "Saldos" }.Contains(currentController);
+    var planejamentoAtivo = new[] { "Metas", "Relatorios" }.Contains(currentController);
+}
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,41 +19,113 @@
           referrerpolicy="no-referrer" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">FinanceHub</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Categorias" asp-action="Index">Categoria</a>
-                        </li>
-                    </ul>
-                </div>
+    <div class="app-shell" id="appShell">
+        <aside class="sidebar" id="sidebar">
+
+            <button class="sidebar-toggle" id="sidebarToggle" type="button"
+                    aria-label="Recolher menu" aria-expanded="true" style="margin-top: 10px; margin: 10px">
+                <i class="fa-solid fa-angles-left"></i>
+            </button>
+            <div class="sidebar-header" style="margin-left: 50px">
+                <a class="sidebar-brand" asp-controller="Home" asp-action="Index">
+                    <span class="brand-mark"></span>
+                    <span class="brand-text">FinanceHub</span>
+                </a>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+            <nav class="sidebar-nav accordion" id="sidebarAccordion" aria-label="Menu principal">
+                <a class="sidebar-link @(currentController == "Home" ? "active" : null) btn btn-dark"
+                   asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Inicio</span>
+                </a>
+
+                <div class="sidebar-accordion-item">
+                    <button class="sidebar-accordion-button @(!cadastrosAtivo ? "collapsed" : null)"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#cadastrosMenu"
+                            aria-expanded="@cadastrosAtivo.ToString().ToLowerInvariant()" aria-controls="cadastrosMenu">
+                        <i class="fa-solid fa-address-book"></i><span>Cadastros</span>
+                        <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+                    </button>
+                    <div id="cadastrosMenu" class="accordion-collapse collapse @(cadastrosAtivo ? "show" : null)"
+                         data-bs-parent="#sidebarAccordion">
+                        <div class="sidebar-accordion-body">
+                            <a class="sidebar-link @(currentController == "Usuarios" ? "active" : null)" asp-controller="Usuarios" asp-action="Index"><i class="fa-solid fa-user"></i><span>Usuarios</span></a>
+                            <a class="sidebar-link @(currentController == "Perfis" ? "active" : null)" asp-controller="Perfis" asp-action="Index"><i class="fa-solid fa-user-shield"></i><span>Perfis</span></a>
+                            <a class="sidebar-link @(currentController == "Categorias" ? "active" : null)" asp-controller="Categorias" asp-action="Index"><i class="fa-solid fa-tags"></i><span>Categorias</span></a>
+                            <a class="sidebar-link @(currentController == "Contas" ? "active" : null)" asp-controller="Contas" asp-action="Index"><i class="fa-solid fa-wallet"></i><span>Contas</span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-accordion-item">
+                    <button class="sidebar-accordion-button @(!movimentacoesAtivo ? "collapsed" : null)"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#movimentacoesMenu"
+                            aria-expanded="@movimentacoesAtivo.ToString().ToLowerInvariant()" aria-controls="movimentacoesMenu">
+                        <i class="fa-solid fa-money-bill-transfer"></i><span>Movimentacoes</span>
+                        <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+                    </button>
+                    <div id="movimentacoesMenu" class="accordion-collapse collapse @(movimentacoesAtivo ? "show" : null)"
+                         data-bs-parent="#sidebarAccordion">
+                        <div class="sidebar-accordion-body">
+                            <a class="sidebar-link @(currentController == "Transacoes" ? "active" : null)" asp-controller="Transacoes" asp-action="Index"><i class="fa-solid fa-arrow-right-arrow-left"></i><span>Transacoes</span></a>
+                            <a class="sidebar-link @(currentController == "LancamentosRecorrentes" ? "active" : null)" asp-controller="LancamentosRecorrentes" asp-action="Index"><i class="fa-solid fa-rotate"></i><span>Recorrencias</span></a>
+                            <a class="sidebar-link @(currentController == "Saldos" ? "active" : null)" asp-controller="Saldos" asp-action="Index"><i class="fa-solid fa-scale-balanced"></i><span>Saldos</span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-accordion-item">
+                    <button class="sidebar-accordion-button @(!planejamentoAtivo ? "collapsed" : null)"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#planejamentoMenu"
+                            aria-expanded="@planejamentoAtivo.ToString().ToLowerInvariant()" aria-controls="planejamentoMenu">
+                        <i class="fa-solid fa-chart-pie"></i><span>Planejamento</span>
+                        <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+                    </button>
+                    <div id="planejamentoMenu" class="accordion-collapse collapse @(planejamentoAtivo ? "show" : null)"
+                         data-bs-parent="#sidebarAccordion">
+                        <div class="sidebar-accordion-body">
+                            <a class="sidebar-link @(currentController == "Metas" ? "active" : null)" asp-controller="Metas" asp-action="Index"><i class="fa-solid fa-bullseye"></i><span>Metas</span></a>
+                            <a class="sidebar-link @(currentController == "Relatorios" ? "active" : null)" asp-controller="Relatorios" asp-action="Index"><i class="fa-solid fa-file-lines"></i><span>Relatorios</span></a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a class="sidebar-link @(currentController == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : null)"
+                   asp-controller="Home" asp-action="Privacy">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Privacidade</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+        <div class="app-content">
+            <header class="topbar">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button"
+                        aria-label="Abrir menu" aria-expanded="false">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div>
+                    <span class="topbar-eyebrow">Controle financeiro</span>
+                    <strong class="topbar-title">@ViewData["Title"]</strong>
+                </div>
+            </header>
+
+            <main class="page-content" role="main">
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                <span>&copy; 2026 FinanceHub</span>
+                <a asp-controller="Home" asp-action="Privacy">Privacidade</a>
+            </footer>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - FinanceHub - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
