@@ -1,6 +1,7 @@
 using FinanceHub.Models;
 using FinanceHub.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceHub.Controllers
@@ -8,10 +9,20 @@ namespace FinanceHub.Controllers
     public class TransacoesController : Controller
     {
         private readonly TransacaoService _transacaoService;
+        private readonly UsuarioService _usuarioService;
+        private readonly CategoriaService _categoriaService;
+        private readonly ContaService _contaService;
 
-        public TransacoesController(TransacaoService transacaoService)
+        public TransacoesController(
+            TransacaoService transacaoService,
+            UsuarioService usuarioService,
+            CategoriaService categoriaService,
+            ContaService contaService)
         {
             _transacaoService = transacaoService;
+            _usuarioService = usuarioService;
+            _categoriaService = categoriaService;
+            _contaService = contaService;
         }
 
         public async Task<IActionResult> Index() => View(await _transacaoService.FindAllAsync());
@@ -24,16 +35,64 @@ namespace FinanceHub.Controllers
             return View(transacao);
         }
 
-        public IActionResult Create() => View(new Transacao { Data = DateTime.Now });
+        public async Task<IActionResult> Create()
+        {
+            await CarregarOpcoesAsync();
+            return View(new Transacao { Data = DateTime.Now });
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Transacao transacao)
         {
-            if (!ModelState.IsValid) return View(transacao);
+            if (!ModelState.IsValid)
+            {
+                await CarregarOpcoesAsync(
+                    transacao.UsuarioId,
+                    transacao.CategoriaId,
+                    transacao.ContaId);
+                return View(transacao);
+            }
+
             if (transacao.Data == default) transacao.Data = DateTime.Now;
             await _transacaoService.InsertAsync(transacao);
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task CarregarOpcoesAsync(
+            int? usuarioSelecionado = null,
+            int? categoriaSelecionada = null,
+            int? contaSelecionada = null)
+        {
+            var usuarios = await _usuarioService.FindAllAsync();
+            var categorias = await _categoriaService.FindAllAsync();
+            var contasCadastradas = await _contaService.FindAllAsync();
+
+            ViewBag.Usuarios = new SelectList(
+                usuarios.OrderBy(usuario => usuario.Nome),
+                nameof(Usuario.Id),
+                nameof(Usuario.Nome),
+                usuarioSelecionado);
+
+            ViewBag.Categorias = new SelectList(
+                categorias.OrderBy(categoria => categoria.Nome),
+                nameof(Categoria.Id),
+                nameof(Categoria.Nome),
+                categoriaSelecionada);
+
+            var contas = contasCadastradas
+                .OrderBy(conta => conta.Nome)
+                .Select(conta => new
+                {
+                    conta.Id,
+                    Descricao = $"{conta.Nome} - {conta.Usuario?.Nome ?? "Usuario nao informado"}"
+                });
+
+            ViewBag.Contas = new SelectList(
+                contas,
+                nameof(Conta.Id),
+                "Descricao",
+                contaSelecionada);
         }
 
         public async Task<IActionResult> Edit(int? id)

@@ -1,4 +1,5 @@
 using FinanceHub.Models.Enums;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using TipoCategoriaEnum = FinanceHub.Models.Enums.TipoCategoria;
 
 namespace FinanceHub.Models
@@ -15,9 +16,12 @@ namespace FinanceHub.Models
         public DateTime Data { get; set; }
         public string? Observacao { get; set; }
 
-        public Usuario Usuario { get; set; } = null!;
-        public Categoria Categoria { get; set; } = null!;
-        public Conta Conta { get; set; } = null!;
+        [ValidateNever]
+        public Usuario? Usuario { get; set; } = null!;
+        [ValidateNever]
+        public Categoria? Categoria { get; set; } = null!;
+        [ValidateNever]
+        public Conta? Conta { get; set; } = null!;
 
         public Transacao()
         {

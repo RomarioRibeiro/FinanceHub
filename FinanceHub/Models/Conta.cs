@@ -1,4 +1,5 @@
 using FinanceHub.Models.Enums;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.Collections.Generic;
 
 namespace FinanceHub.Models
@@ -13,7 +14,8 @@ namespace FinanceHub.Models
         public decimal SaldoAtual { get; set; }
         public bool Ativa { get; set; }
 
-        public Usuario Usuario { get; set; } = null!;
+        [ValidateNever]
+        public Usuario? Usuario { get; set; } = null!;
         public ICollection<Saldo> Saldos { get; set; } = new List<Saldo>();
         public ICollection<Transacao> Transacoes { get; set; } = new List<Transacao>();
 

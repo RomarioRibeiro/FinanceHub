@@ -1,5 +1,7 @@
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var pageActionClass = $"page-{currentAction?.ToLowerInvariant()}";
     var cadastrosAtivo = new[] { "Usuarios", "Perfis", "Categorias", "Contas" }.Contains(currentController);
     var movimentacoesAtivo = new[] { "Transacoes", "LancamentosRecorrentes", "Saldos" }.Contains(currentController);
     var planejamentoAtivo = new[] { "Metas", "Relatorios" }.Contains(currentController);
@@ -21,34 +23,41 @@
 <body>
     <div class="app-shell" id="appShell">
         <aside class="sidebar" id="sidebar">
-
-            <button class="sidebar-toggle" id="sidebarToggle" type="button"
-                    aria-label="Recolher menu" aria-expanded="true" style="margin-top: 10px; margin: 10px">
-                <i class="fa-solid fa-angles-left"></i>
-            </button>
-            <div class="sidebar-header" style="margin-left: 50px">
+            <div class="sidebar-header">
                 <a class="sidebar-brand" asp-controller="Home" asp-action="Index">
-                    <span class="brand-mark"></span>
-                    <span class="brand-text">FinanceHub</span>
+                    <span class="brand-mark" aria-hidden="true">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </span>
+                    <span class="brand-copy">
+                        <strong class="brand-text">FinanceHub</strong>
+                        <small>Gestao financeira</small>
+                    </span>
                 </a>
+                <button class="sidebar-toggle" id="sidebarToggle" type="button"
+                        aria-label="Recolher menu" aria-expanded="true">
+                    <i class="fa-solid fa-angles-left"></i>
+                </button>
             </div>
 
             <nav class="sidebar-nav accordion" id="sidebarAccordion" aria-label="Menu principal">
-                <a class="sidebar-link @(currentController == "Home" ? "active" : null) btn btn-dark"
-                   asp-controller="Home" asp-action="Index">
+                <span class="sidebar-section-label">Navegacao</span>
+
+                <a class="sidebar-link @(currentController == "Home" && currentAction != "Privacy" ? "active" : null)"
+                   asp-controller="Home" asp-action="Index" data-menu-label="Inicio" title="Inicio">
                     <i class="fa-solid fa-house"></i>
                     <span>Inicio</span>
                 </a>
 
                 <div class="sidebar-accordion-item">
-                    <button class="sidebar-accordion-button @(!cadastrosAtivo ? "collapsed" : null)"
+                    <button class="sidebar-accordion-button @(!cadastrosAtivo ? "collapsed" : null) @(cadastrosAtivo ? "group-active" : null)"
                             type="button" data-bs-toggle="collapse" data-bs-target="#cadastrosMenu"
-                            aria-expanded="@cadastrosAtivo.ToString().ToLowerInvariant()" aria-controls="cadastrosMenu">
+                            aria-expanded="@cadastrosAtivo.ToString().ToLowerInvariant()" aria-controls="cadastrosMenu"
+                            data-menu-label="Cadastros" title="Cadastros">
                         <i class="fa-solid fa-address-book"></i><span>Cadastros</span>
                         <i class="fa-solid fa-chevron-down accordion-chevron"></i>
                     </button>
                     <div id="cadastrosMenu" class="accordion-collapse collapse @(cadastrosAtivo ? "show" : null)"
-                         data-bs-parent="#sidebarAccordion">
+                        data-bs-parent="#sidebarAccordion">
                         <div class="sidebar-accordion-body">
                             <a class="sidebar-link @(currentController == "Usuarios" ? "active" : null)" asp-controller="Usuarios" asp-action="Index"><i class="fa-solid fa-user"></i><span>Usuarios</span></a>
                             <a class="sidebar-link @(currentController == "Perfis" ? "active" : null)" asp-controller="Perfis" asp-action="Index"><i class="fa-solid fa-user-shield"></i><span>Perfis</span></a>
@@ -59,9 +68,10 @@
                 </div>
 
                 <div class="sidebar-accordion-item">
-                    <button class="sidebar-accordion-button @(!movimentacoesAtivo ? "collapsed" : null)"
+                    <button class="sidebar-accordion-button @(!movimentacoesAtivo ? "collapsed" : null) @(movimentacoesAtivo ? "group-active" : null)"
                             type="button" data-bs-toggle="collapse" data-bs-target="#movimentacoesMenu"
-                            aria-expanded="@movimentacoesAtivo.ToString().ToLowerInvariant()" aria-controls="movimentacoesMenu">
+                            aria-expanded="@movimentacoesAtivo.ToString().ToLowerInvariant()" aria-controls="movimentacoesMenu"
+                            data-menu-label="Movimentacoes" title="Movimentacoes">
                         <i class="fa-solid fa-money-bill-transfer"></i><span>Movimentacoes</span>
                         <i class="fa-solid fa-chevron-down accordion-chevron"></i>
                     </button>
@@ -76,9 +86,10 @@
                 </div>
 
                 <div class="sidebar-accordion-item">
-                    <button class="sidebar-accordion-button @(!planejamentoAtivo ? "collapsed" : null)"
+                    <button class="sidebar-accordion-button @(!planejamentoAtivo ? "collapsed" : null) @(planejamentoAtivo ? "group-active" : null)"
                             type="button" data-bs-toggle="collapse" data-bs-target="#planejamentoMenu"
-                            aria-expanded="@planejamentoAtivo.ToString().ToLowerInvariant()" aria-controls="planejamentoMenu">
+                            aria-expanded="@planejamentoAtivo.ToString().ToLowerInvariant()" aria-controls="planejamentoMenu"
+                            data-menu-label="Planejamento" title="Planejamento">
                         <i class="fa-solid fa-chart-pie"></i><span>Planejamento</span>
                         <i class="fa-solid fa-chevron-down accordion-chevron"></i>
                     </button>
@@ -94,7 +105,7 @@
 
             <div class="sidebar-footer">
                 <a class="sidebar-link @(currentController == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : null)"
-                   asp-controller="Home" asp-action="Privacy">
+                   asp-controller="Home" asp-action="Privacy" data-menu-label="Privacidade" title="Privacidade">
                     <i class="fa-solid fa-shield-halved"></i>
                     <span>Privacidade</span>
                 </a>
@@ -115,7 +126,8 @@
                 </div>
             </header>
 
-            <main class="page-content" role="main">
+            <main class="page-content @pageActionClass" role="main"
+                  data-controller="@currentController" data-action="@currentAction">
                 @RenderBody()
             </main>
 

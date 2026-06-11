@@ -10,8 +10,11 @@
 <form asp-action="Create">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="mb-3">
-        <label asp-for="UsuarioId" class="form-label"></label>
-        <input asp-for="UsuarioId" class="form-control" />
+        <label asp-for="UsuarioId" class="form-label">Usuario</label>
+        <select asp-for="UsuarioId" asp-items="ViewBag.Usuarios" class="form-select">
+            <option value="">Selecione um usuario</option>
+        </select>
+        <span asp-validation-for="UsuarioId" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="Nome" class="form-label"></label>
@@ -32,3 +35,9 @@
     <button type="submit" class="btn btn-primary">Salvar</button>
     <a class="btn btn-secondary" asp-action="Index">Voltar</a>
 </form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

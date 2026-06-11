@@ -1,8 +1,59 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Visao geral";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="home-hero">
+    <div>
+        <span class="home-kicker">Controle financeiro pessoal</span>
+        <h1>Decisoes melhores com suas financas organizadas.</h1>
+        <p>
+            Centralize contas, transacoes, metas e recorrencias em uma experiencia
+            simples para acompanhar sua vida financeira.
+        </p>
+        <div class="home-hero-actions">
+            <a class="btn btn-light" asp-controller="Transacoes" asp-action="Create">
+                <i class="fa-solid fa-plus"></i>
+                Nova transacao
+            </a>
+            <a class="btn btn-secondary" asp-controller="Contas" asp-action="Index">
+                Ver contas
+            </a>
+        </div>
+    </div>
+
+    <div class="home-summary" aria-label="Recursos principais">
+        <div class="home-summary-card">
+            <i class="fa-solid fa-wallet"></i>
+            <strong>Contas</strong>
+            <span>Saldos organizados em um unico lugar</span>
+        </div>
+        <div class="home-summary-card">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            <strong>Movimentacoes</strong>
+            <span>Receitas e despesas categorizadas</span>
+        </div>
+        <div class="home-summary-card">
+            <i class="fa-solid fa-bullseye"></i>
+            <strong>Planejamento</strong>
+            <span>Metas e relatorios para evoluir</span>
+        </div>
+    </div>
+</section>
+
+<section class="home-grid" aria-label="Atalhos do sistema">
+    <article class="feature-card">
+        <i class="fa-solid fa-tags"></i>
+        <h2>Categorize com clareza</h2>
+        <p>Organize cada movimentacao para entender onde seu dinheiro entra e sai.</p>
+    </article>
+    <article class="feature-card">
+        <i class="fa-solid fa-rotate"></i>
+        <h2>Controle recorrencias</h2>
+        <p>Registre compromissos recorrentes e mantenha a previsibilidade financeira.</p>
+    </article>
+    <article class="feature-card">
+        <i class="fa-solid fa-chart-column"></i>
+        <h2>Acompanhe resultados</h2>
+        <p>Use metas, saldos e relatorios para transformar dados em decisoes.</p>
+    </article>
+</section>
