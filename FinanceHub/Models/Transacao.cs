@@ -1,5 +1,6 @@
 using FinanceHub.Models.Enums;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using TipoCategoriaEnum = FinanceHub.Models.Enums.TipoCategoria;
 
 namespace FinanceHub.Models
@@ -11,9 +12,17 @@ namespace FinanceHub.Models
         public int CategoriaId { get; set; }
         public int ContaId { get; set; }
         public TipoCategoria TipoCategoria { get; set; }
+        [Required(ErrorMessage = "Informe a descricao.")]
+        [StringLength(200, MinimumLength = 3, ErrorMessage = "A descricao deve ter entre 3 e 200 caracteres.")]
         public string Descricao { get; set; } = string.Empty;
+
+        [Range(typeof(decimal), "0.01", "9999999999999999", ErrorMessage = "O valor deve ser maior que zero.")]
         public decimal Valor { get; set; }
+
+        [Required(ErrorMessage = "Informe a data.")]
         public DateTime Data { get; set; }
+
+        [StringLength(500, ErrorMessage = "A observacao deve ter no maximo 500 caracteres.")]
         public string? Observacao { get; set; }
 
         [ValidateNever]
@@ -46,6 +55,11 @@ namespace FinanceHub.Models
         public bool EhDespesa()
         {
             return TipoCategoria == TipoCategoriaEnum.DESPESA;
+        }
+
+        public decimal ObterImpactoNoSaldo()
+        {
+            return EhReceita() ? Valor : -Valor;
         }
     }
 }

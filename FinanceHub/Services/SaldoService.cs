@@ -6,46 +6,28 @@ namespace FinanceHub.Services
     public class SaldoService
     {
         private readonly IRepository<Saldo> _repository;
+        private readonly UsuarioAtualService _usuarioAtualService;
 
-        public SaldoService(IRepository<Saldo> repository)
+        public SaldoService(IRepository<Saldo> repository, UsuarioAtualService usuarioAtualService)
         {
             _repository = repository;
+            _usuarioAtualService = usuarioAtualService;
         }
 
-        public async Task<List<Saldo>> FindAllAsync()
+        public Task<List<Saldo>> FindAllAsync()
         {
-            return await _repository.FindAllAsync(obj => obj.Conta);
+            var usuarioId = _usuarioAtualService.ObterUsuarioId();
+            return _repository.FindAllAsync(
+                saldo => saldo.Conta.UsuarioId == usuarioId,
+                saldo => saldo.Conta);
         }
 
-        public async Task<Saldo> FindByIdAsync(int id)
+        public Task<Saldo?> FindByIdAsync(int id)
         {
-            return await _repository.FindByIdAsync(id, obj => obj.Conta);
-        }
-
-        public async Task InsertAsync(Saldo saldo)
-        {
-            await _repository.InsertAsync(saldo);
-        }
-
-        public async Task Update(Saldo saldo)
-        {
-            if (!await _repository.ExistsAsync(saldo.Id))
-            {
-                throw new Exception();
-            }
-
-            await _repository.UpdateAsync(saldo);
-        }
-
-        public async Task RemoveAsync(int id)
-        {
-            var entity = await _repository.FindByIdAsync(id);
-            if (entity == null)
-            {
-                throw new Exception();
-            }
-
-            await _repository.RemoveAsync(entity);
+            var usuarioId = _usuarioAtualService.ObterUsuarioId();
+            return _repository.FindFirstAsync(
+                saldo => saldo.Id == id && saldo.Conta.UsuarioId == usuarioId,
+                saldo => saldo.Conta);
         }
     }
 }

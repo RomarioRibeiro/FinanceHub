@@ -1,7 +1,7 @@
 using FinanceHub.Models;
+using FinanceHub.Models.Exceptions;
 using FinanceHub.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinanceHub.Controllers
 {
@@ -31,9 +31,16 @@ namespace FinanceHub.Controllers
         public async Task<IActionResult> Create(Meta meta)
         {
             if (!ModelState.IsValid) return View(meta);
-            if (meta.DataInicio == default) meta.DataInicio = DateTime.Now;
-            await _metaService.InsertAsync(meta);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _metaService.InsertAsync(meta);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (RegraNegocioException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(meta);
+            }
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -56,9 +63,10 @@ namespace FinanceHub.Controllers
                 await _metaService.Update(meta);
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (RegraNegocioException ex)
             {
-                throw new Exception();
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(meta);
             }
         }
 
@@ -74,8 +82,16 @@ namespace FinanceHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _metaService.RemoveAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _metaService.RemoveAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (RegraNegocioException ex)
+            {
+                TempData["Erro"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

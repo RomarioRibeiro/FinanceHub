@@ -11,12 +11,10 @@
     <input type="hidden" asp-for="Id" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="mb-3">
-        <label asp-for="UsuarioId" class="form-label"></label>
-        <input asp-for="UsuarioId" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="CategoriaId" class="form-label"></label>
-        <input asp-for="CategoriaId" class="form-control" />
+        <label asp-for="CategoriaId" class="form-label">Categoria</label>
+        <select asp-for="CategoriaId" asp-items="ViewBag.Categorias" class="form-select">
+            <option value="">Selecione uma categoria</option>
+        </select>
     </div>
     <div class="mb-3">
         <label asp-for="Descricao" class="form-label"></label>
@@ -25,10 +23,6 @@
     <div class="mb-3">
         <label asp-for="Valor" class="form-label"></label>
         <input asp-for="Valor" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="Tipo" class="form-label"></label>
-        <select asp-for="Tipo" asp-items="Html.GetEnumSelectList<TipoCategoria>()" class="form-control"></select>
     </div>
     <div class="mb-3">
         <label asp-for="DataInicial" class="form-label"></label>

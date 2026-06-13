@@ -20,8 +20,9 @@
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="SenhaHash" class="form-label"></label>
-        <input asp-for="SenhaHash" class="form-control" />
+        <label asp-for="SenhaHash" class="form-label">Nova senha</label>
+        <input asp-for="SenhaHash" class="form-control" type="password" autocomplete="new-password"
+               placeholder="Deixe vazio para manter a senha atual" />
         <span asp-validation-for="SenhaHash" class="text-danger"></span>
     </div>
     <div class="mb-3 form-check">

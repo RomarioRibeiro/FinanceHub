@@ -1,0 +1,79 @@
+@model FinanceHub.Models.ViewModels.LoginViewModel
+
+@{
+    Layout = "_LoginLayout";
+    ViewData["Title"] = "Entrar";
+}
+
+<section class="auth-shell">
+    <div class="auth-intro">
+        <a class="auth-brand" asp-controller="Conta" asp-action="Login">
+            <span class="brand-mark" aria-hidden="true">
+                <i class="fa-solid fa-chart-line"></i>
+            </span>
+            <span>
+                <strong>FinanceHub</strong>
+                <small>Gestao financeira pessoal</small>
+            </span>
+        </a>
+
+        <div class="auth-message">
+            <span class="auth-kicker">Acesso protegido</span>
+            <h1>Suas financas comecam por uma entrada segura.</h1>
+            <p>Entre com seu usuario para acessar contas, transacoes, metas e relatorios.</p>
+        </div>
+
+        <div class="auth-security-note">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>A sessao e protegida por cookie HTTP-only e expira automaticamente.</span>
+        </div>
+    </div>
+
+    <div class="auth-form-panel">
+        <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" class="auth-form">
+            <div>
+                <span class="auth-kicker">Bem-vindo</span>
+                <h2>Entre na sua conta</h2>
+                <p>Informe suas credenciais para continuar.</p>
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="auth-field">
+                <label asp-for="Email"></label>
+                <div class="auth-input">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input asp-for="Email" autocomplete="username" autofocus />
+                </div>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="auth-field">
+                <label asp-for="Senha"></label>
+                <div class="auth-input">
+                    <i class="fa-solid fa-lock"></i>
+                    <input asp-for="Senha" autocomplete="current-password" />
+                </div>
+                <span asp-validation-for="Senha" class="text-danger"></span>
+            </div>
+
+            <div class="auth-options">
+                <label class="auth-check">
+                    <input asp-for="LembrarMe" />
+                    <span>Manter conectado</span>
+                </label>
+            </div>
+
+            <button type="submit" class="auth-submit">
+                Entrar
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

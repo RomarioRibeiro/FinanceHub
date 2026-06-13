@@ -109,6 +109,12 @@
                     <i class="fa-solid fa-shield-halved"></i>
                     <span>Privacidade</span>
                 </a>
+                <form asp-controller="Conta" asp-action="Sair" method="post" class="sidebar-logout">
+                    <button type="submit" class="sidebar-link" title="Sair">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Sair</span>
+                    </button>
+                </form>
             </div>
         </aside>
 
@@ -123,6 +129,15 @@
                 <div>
                     <span class="topbar-eyebrow">Controle financeiro</span>
                     <strong class="topbar-title">@ViewData["Title"]</strong>
+                </div>
+                <div class="topbar-user">
+                    <span class="topbar-user-icon">
+                        <i class="fa-solid fa-user"></i>
+                    </span>
+                    <span>
+                        <small>Usuario conectado</small>
+                        <strong>@User.Identity?.Name</strong>
+                    </span>
                 </div>
             </header>
 

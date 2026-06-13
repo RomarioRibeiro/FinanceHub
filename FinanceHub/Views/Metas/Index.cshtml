@@ -5,6 +5,10 @@
 }
 
 <h2>@ViewData["Title"]</h2>
+@if (TempData["Erro"] is string erro)
+{
+    <div class="alert alert-danger">@erro</div>
+}
 <p><a class="btn btn-primary" asp-action="Create">Novo</a></p>
 <table class="table">
     <thead>

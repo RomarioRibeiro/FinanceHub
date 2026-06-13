@@ -1,17 +1,47 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using FinanceHub.Data;
 using FinanceHub.Repositories;
 using FinanceHub.Services;
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<FinanceHubContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("FinanceHubContext") ?? throw new InvalidOperationException("Connection string 'FinanceHubContext' not found.")));
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<FinanceHubContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("FinanceHubContext")
+        ?? throw new InvalidOperationException("Connection string 'FinanceHubContext' not found.")));
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Conta/Login";
+        options.AccessDeniedPath = "/Conta/AcessoNegado";
+        options.Cookie.Name = "FinanceHub.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<CategoriaService>();
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<AutenticacaoService>();
+builder.Services.AddScoped<UsuarioAtualService>();
 builder.Services.AddScoped<PerfilService>();
 builder.Services.AddScoped<ContaService>();
 builder.Services.AddScoped<SaldoService>();
@@ -22,11 +52,9 @@ builder.Services.AddScoped<RelatorioService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -35,6 +63,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

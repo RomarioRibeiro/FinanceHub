@@ -19,8 +19,8 @@
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="SenhaHash" class="form-label"></label>
-        <input asp-for="SenhaHash" class="form-control" />
+        <label asp-for="SenhaHash" class="form-label">Senha</label>
+        <input asp-for="SenhaHash" class="form-control" type="password" autocomplete="new-password" />
         <span asp-validation-for="SenhaHash" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Salvar</button>

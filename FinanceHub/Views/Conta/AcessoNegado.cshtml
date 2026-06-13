@@ -1,0 +1,11 @@
+@{
+    Layout = "_LoginLayout";
+    ViewData["Title"] = "Acesso negado";
+}
+
+<section class="auth-feedback">
+    <i class="fa-solid fa-lock"></i>
+    <span class="auth-kicker">Acesso negado</span>
+    <h1>Voce nao possui permissao para acessar esta pagina.</h1>
+    <a class="auth-submit" asp-controller="Home" asp-action="Index">Voltar ao inicio</a>
+</section>

@@ -25,6 +25,19 @@ namespace FinanceHub.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<List<T>> FindAllAsync(
+            Expression<Func<T, bool>> predicate,
+            params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet.Where(predicate);
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.ToListAsync();
+        }
+
         public async Task<T?> FindByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
@@ -34,6 +47,19 @@ namespace FinanceHub.Repositories
             }
 
             return await query.FirstOrDefaultAsync(entity => EF.Property<int>(entity, "Id") == id);
+        }
+
+        public async Task<T?> FindFirstAsync(
+            Expression<Func<T, bool>> predicate,
+            params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.FirstOrDefaultAsync(predicate);
         }
 
         public async Task InsertAsync(T entity)

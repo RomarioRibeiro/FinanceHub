@@ -32,6 +32,7 @@ namespace FinanceHub.Controllers
                 return NotFound();
             }
 
+            usuario.SenhaHash = string.Empty;
             return View(usuario);
         }
 

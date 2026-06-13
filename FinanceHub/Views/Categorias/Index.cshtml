@@ -6,6 +6,10 @@
 <link rel="stylesheet" href="~/css/categoria.css" asp-append-version="true" />
 
 <h2>@ViewData["Title"]</h2>
+@if (TempData["Erro"] is string erro)
+{
+    <div class="alert alert-danger">@erro</div>
+}
 <p>
     <a class="btn btn-primary" asp-action="Create">Novo</a>
 </p>

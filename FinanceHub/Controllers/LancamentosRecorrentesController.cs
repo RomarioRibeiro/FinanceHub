@@ -1,81 +1,149 @@
 using FinanceHub.Models;
+using FinanceHub.Models.Exceptions;
 using FinanceHub.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace FinanceHub.Controllers
 {
     public class LancamentosRecorrentesController : Controller
     {
         private readonly LancamentoRecorrenteService _service;
+        private readonly CategoriaService _categoriaService;
 
-        public LancamentosRecorrentesController(LancamentoRecorrenteService service)
+        public LancamentosRecorrentesController(
+            LancamentoRecorrenteService service,
+            CategoriaService categoriaService)
         {
             _service = service;
+            _categoriaService = categoriaService;
         }
 
-        public async Task<IActionResult> Index() => View(await _service.FindAllAsync());
+        public async Task<IActionResult> Index()
+        {
+            return View(await _service.FindAllAsync());
+        }
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var item = await _service.FindByIdAsync(id.Value);
-            if (item == null) return NotFound();
-            return View(item);
+            return item == null ? NotFound() : View(item);
         }
 
-        public IActionResult Create() => View(new LancamentoRecorrente { DataInicial = DateTime.Now, Ativo = true });
+        public async Task<IActionResult> Create()
+        {
+            await CarregarCategoriasAsync();
+            return View(new LancamentoRecorrente { DataInicial = DateTime.Now, Ativo = true });
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(LancamentoRecorrente lancamentoRecorrente)
+        public async Task<IActionResult> Create(LancamentoRecorrente lancamento)
         {
-            if (!ModelState.IsValid) return View(lancamentoRecorrente);
-            if (lancamentoRecorrente.DataInicial == default) lancamentoRecorrente.DataInicial = DateTime.Now;
-            await _service.InsertAsync(lancamentoRecorrente);
-            return RedirectToAction(nameof(Index));
+            if (!ModelState.IsValid)
+            {
+                await CarregarCategoriasAsync(lancamento.CategoriaId);
+                return View(lancamento);
+            }
+
+            try
+            {
+                await _service.InsertAsync(lancamento);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (RegraNegocioException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                await CarregarCategoriasAsync(lancamento.CategoriaId);
+                return View(lancamento);
+            }
         }
 
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var item = await _service.FindByIdAsync(id.Value);
-            if (item == null) return NotFound();
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            await CarregarCategoriasAsync(item.CategoriaId);
             return View(item);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, LancamentoRecorrente lancamentoRecorrente)
+        public async Task<IActionResult> Edit(int id, LancamentoRecorrente lancamento)
         {
-            if (id != lancamentoRecorrente.Id) return NotFound();
-            if (!ModelState.IsValid) return View(lancamentoRecorrente);
+            if (id != lancamento.Id)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                await CarregarCategoriasAsync(lancamento.CategoriaId);
+                return View(lancamento);
+            }
 
             try
             {
-                await _service.Update(lancamentoRecorrente);
+                await _service.Update(lancamento);
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (RegraNegocioException ex)
             {
-                throw new Exception();
+                ModelState.AddModelError(string.Empty, ex.Message);
+                await CarregarCategoriasAsync(lancamento.CategoriaId);
+                return View(lancamento);
             }
         }
 
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var item = await _service.FindByIdAsync(id.Value);
-            if (item == null) return NotFound();
-            return View(item);
+            return item == null ? NotFound() : View(item);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _service.RemoveAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _service.RemoveAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (RegraNegocioException ex)
+            {
+                TempData["Erro"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        private async Task CarregarCategoriasAsync(int? selecionada = null)
+        {
+            var categorias = await _categoriaService.FindAllAsync();
+            ViewBag.Categorias = new SelectList(
+                categorias.OrderBy(categoria => categoria.Nome),
+                nameof(Categoria.Id),
+                nameof(Categoria.Nome),
+                selecionada);
         }
     }
 }

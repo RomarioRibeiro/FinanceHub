@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FinanceHub.Data;
 using FinanceHub.Models;
+using FinanceHub.Models.Exceptions;
 using FinanceHub.Services;
 
 namespace FinanceHub.Controllers
@@ -45,7 +46,7 @@ namespace FinanceHub.Controllers
         }
 
         // GET: Categorias/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             var categoria = new Categoria();
             return View(categoria);
@@ -62,8 +63,16 @@ namespace FinanceHub.Controllers
             {
                 return View(categoria);
             }
-            await _categoriasService.InsertAsync(categoria);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _categoriasService.InsertAsync(categoria);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (RegraNegocioException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(categoria);
+            }
         }
 
         // GET: Categorias/Edit/5
@@ -105,9 +114,10 @@ namespace FinanceHub.Controllers
                 await _categoriasService.Update(categoria);
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (RegraNegocioException ex)
             {
-                throw new Exception();
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(categoria);
             }
         }
 
@@ -138,9 +148,10 @@ namespace FinanceHub.Controllers
                 await _categoriasService.RemoveAsync(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (RegraNegocioException ex)
             {
-                throw new Exception();
+                TempData["Erro"] = ex.Message;
+                return RedirectToAction(nameof(Index));
             }
         }
     }
