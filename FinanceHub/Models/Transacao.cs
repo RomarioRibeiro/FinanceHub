@@ -16,7 +16,13 @@ namespace FinanceHub.Models
         [StringLength(200, MinimumLength = 3, ErrorMessage = "A descricao deve ter entre 3 e 200 caracteres.")]
         public string Descricao { get; set; } = string.Empty;
 
-        [Range(typeof(decimal), "0.01", "9999999999999999", ErrorMessage = "O valor deve ser maior que zero.")]
+        [Range(
+            typeof(decimal),
+            "0.01",
+            "9999999999999999",
+            ParseLimitsInInvariantCulture = true,
+            ConvertValueInInvariantCulture = true,
+            ErrorMessage = "O valor deve ser maior que zero.")]
         public decimal Valor { get; set; }
 
         [Required(ErrorMessage = "Informe a data.")]

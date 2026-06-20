@@ -7,39 +7,143 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<form asp-action="Edit">
+<form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @if (!(ViewBag.PossuiCategorias as bool? ?? false))
+    {
+        <div class="alert alert-warning">
+            Nenhuma categoria cadastrada.
+            <a asp-controller="Categorias" asp-action="Create">Cadastrar categoria</a>
+        </div>
+    }
+
+    @if (!(ViewBag.PossuiContas as bool? ?? false))
+    {
+        <div class="alert alert-warning">
+            Nenhuma conta ativa disponivel.
+            <a asp-controller="Contas" asp-action="Create">Cadastrar conta</a>
+        </div>
+    }
+
     <div class="mb-3">
         <label asp-for="CategoriaId" class="form-label">Categoria</label>
-        <select asp-for="CategoriaId" asp-items="ViewBag.Categorias" class="form-select">
+        <select asp-for="CategoriaId"
+                asp-items="ViewBag.Categorias"
+                class="form-select"
+                required
+                disabled="@(!(ViewBag.PossuiCategorias as bool? ?? false) ? "disabled" : null)">
             <option value="">Selecione uma categoria</option>
         </select>
+        <span asp-validation-for="CategoriaId" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="ContaId" class="form-label">Conta</label>
+        <select asp-for="ContaId"
+                asp-items="ViewBag.Contas"
+                class="form-select"
+                required
+                disabled="@(!(ViewBag.PossuiContas as bool? ?? false) ? "disabled" : null)">
+            <option value="">Selecione uma conta</option>
+        </select>
+        <span asp-validation-for="ContaId" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="Descricao" class="form-label"></label>
         <input asp-for="Descricao" class="form-control" />
+        <span asp-validation-for="Descricao" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="Valor" class="form-label"></label>
-        <input asp-for="Valor" class="form-control" />
+        <input asp-for="Valor" class="form-control" inputmode="decimal" />
+        <span asp-validation-for="Valor" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="DataInicial" class="form-label"></label>
-        <input asp-for="DataInicial" class="form-control" type="datetime-local" />
+        <input asp-for="DataInicial" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" type="datetime-local" />
+        <span asp-validation-for="DataInicial" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="Frequencia" class="form-label"></label>
-        <input asp-for="Frequencia" class="form-control" />
+        <select asp-for="Frequencia" asp-items="Html.GetEnumSelectList<FrequenciaRecorrencia>()" class="form-select" id="frequenciaSelect"></select>
+        <span asp-validation-for="Frequencia" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="DiaReferencia" class="form-label"></label>
-        <input asp-for="DiaReferencia" class="form-control" />
+        <input asp-for="DiaReferencia" class="form-control" type="number" id="diaReferenciaInput" />
+        <div class="form-text" id="diaReferenciaHint"></div>
+        <span asp-validation-for="DiaReferencia" class="text-danger"></span>
     </div>
     <div class="mb-3 form-check">
         <input asp-for="Ativo" class="form-check-input" />
         <label asp-for="Ativo" class="form-check-label"></label>
     </div>
-    <button type="submit" class="btn btn-primary">Salvar</button>
+    <button type="submit" class="btn btn-primary" disabled="@(!(ViewBag.PodeSalvar as bool? ?? false) ? "disabled" : null)">Salvar</button>
     <a class="btn btn-secondary" asp-action="Index">Voltar</a>
 </form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        (() => {
+            const frequencia = document.getElementById("frequenciaSelect");
+            const diaReferencia = document.getElementById("diaReferenciaInput");
+            const hint = document.getElementById("diaReferenciaHint");
+
+            if (!frequencia || !diaReferencia || !hint) {
+                return;
+            }
+
+            const updateHint = () => {
+                switch (frequencia.value) {
+                    case "0":
+                        diaReferencia.value = "0";
+                        diaReferencia.min = "0";
+                        diaReferencia.max = "0";
+                        diaReferencia.readOnly = true;
+                        hint.textContent = "Para recorrencia diaria, o dia de referencia deve ser 0.";
+                        break;
+                    case "1":
+                        diaReferencia.readOnly = false;
+                        diaReferencia.min = "1";
+                        diaReferencia.max = "7";
+                        if (!diaReferencia.value || Number(diaReferencia.value) < 1 || Number(diaReferencia.value) > 7) {
+                            diaReferencia.value = "1";
+                        }
+                        hint.textContent = "Informe de 1 a 7 para representar o dia da semana.";
+                        break;
+                    case "2":
+                        diaReferencia.readOnly = false;
+                        diaReferencia.min = "1";
+                        diaReferencia.max = "31";
+                        if (!diaReferencia.value || Number(diaReferencia.value) < 1 || Number(diaReferencia.value) > 31) {
+                            diaReferencia.value = "1";
+                        }
+                        hint.textContent = "Informe de 1 a 31 para representar o dia do mes.";
+                        break;
+                    case "3":
+                        diaReferencia.readOnly = false;
+                        diaReferencia.min = "1";
+                        diaReferencia.max = "366";
+                        if (!diaReferencia.value || Number(diaReferencia.value) < 1 || Number(diaReferencia.value) > 366) {
+                            diaReferencia.value = "1";
+                        }
+                        hint.textContent = "Informe de 1 a 366 para representar o dia do ano.";
+                        break;
+                    default:
+                        diaReferencia.readOnly = false;
+                        diaReferencia.removeAttribute("min");
+                        diaReferencia.removeAttribute("max");
+                        hint.textContent = "";
+                        break;
+                }
+            };
+
+            frequencia.addEventListener("change", updateHint);
+            updateHint();
+        })();
+    </script>
+}

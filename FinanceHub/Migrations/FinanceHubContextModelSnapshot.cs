@@ -121,6 +121,9 @@ namespace FinanceHub.Migrations
                     b.Property<int>("CategoriaId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ContaId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Descricao")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -138,6 +141,9 @@ namespace FinanceHub.Migrations
                     b.Property<int>("Tipo")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("UltimaGeracaoEm")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal>("Valor")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -148,6 +154,8 @@ namespace FinanceHub.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoriaId");
+
+                    b.HasIndex("ContaId");
 
                     b.HasIndex("UsuarioId");
 
@@ -431,6 +439,11 @@ namespace FinanceHub.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("FinanceHub.Models.Conta", "Conta")
+                        .WithMany()
+                        .HasForeignKey("ContaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("FinanceHub.Models.Usuario", "Usuario")
                         .WithMany("LancamentosRecorrentes")
                         .HasForeignKey("UsuarioId")
@@ -438,6 +451,7 @@ namespace FinanceHub.Migrations
                         .IsRequired();
 
                     b.Navigation("Categoria");
+                    b.Navigation("Conta");
                     b.Navigation("Usuario");
                 });
 

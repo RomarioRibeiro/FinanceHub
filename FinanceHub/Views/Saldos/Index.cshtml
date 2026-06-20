@@ -1,30 +1,46 @@
-@model IEnumerable<FinanceHub.Models.Saldo>
+@model IEnumerable<FinanceHub.Models.ViewModels.SaldoContaViewModel>
 
 @{
     ViewData["Title"] = "Lista de Saldos";
 }
 
 <h2>@ViewData["Title"]</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>ContaId</th>
-            <th>Data</th>
-            <th>Valor</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.ContaId</td>
-            <td>@item.Data</td>
-            <td>@item.Valor</td>
-            <td>
-                <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">Detalhes</a>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
+
+@if (!Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <p>Nenhuma conta cadastrada para exibir saldo.</p>
+        </div>
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Conta</th>
+                <th>Tipo</th>
+                <th>Saldo Inicial</th>
+                <th>Saldo Atual</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ContaNome</td>
+                <td>@item.TipoConta</td>
+                <td>@item.SaldoInicial.ToString("C")</td>
+                <td>@item.SaldoAtual.ToString("C")</td>
+                <td>@(item.Ativa ? "Ativa" : "Inativa")</td>
+                <td>
+                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.ContaId">Detalhes</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

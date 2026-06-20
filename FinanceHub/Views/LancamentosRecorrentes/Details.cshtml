@@ -7,12 +7,26 @@
 <h1>@ViewData["Title"]</h1>
 
 <dl class="row">
+    <dt class="col-sm-2">Categoria</dt>
+    <dd class="col-sm-10">@Model.Categoria?.Nome</dd>
+    <dt class="col-sm-2">Conta</dt>
+    <dd class="col-sm-10">@Model.Conta?.Nome</dd>
     <dt class="col-sm-2">Descricao</dt>
     <dd class="col-sm-10">@Model.Descricao</dd>
     <dt class="col-sm-2">Valor</dt>
-    <dd class="col-sm-10">@Model.Valor</dd>
+    <dd class="col-sm-10">@Model.Valor.ToString("C")</dd>
     <dt class="col-sm-2">Tipo</dt>
     <dd class="col-sm-10">@Model.Tipo</dd>
+    <dt class="col-sm-2">Frequencia</dt>
+    <dd class="col-sm-10">@Model.Frequencia</dd>
+    <dt class="col-sm-2">Dia Referencia</dt>
+    <dd class="col-sm-10">@Model.DiaReferencia</dd>
+    <dt class="col-sm-2">Data Inicial</dt>
+    <dd class="col-sm-10">@Model.DataInicial.ToString("dd/MM/yyyy HH:mm")</dd>
+    <dt class="col-sm-2">Ultima Geracao</dt>
+    <dd class="col-sm-10">@(Model.UltimaGeracaoEm?.ToString("dd/MM/yyyy HH:mm") ?? "-")</dd>
+    <dt class="col-sm-2">Status</dt>
+    <dd class="col-sm-10">@(Model.Ativo ? "Ativo" : "Inativo")</dd>
 </dl>
 
 <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>

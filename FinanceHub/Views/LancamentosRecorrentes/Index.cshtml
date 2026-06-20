@@ -5,6 +5,10 @@
 }
 
 <h2>@ViewData["Title"]</h2>
+@if (TempData["Sucesso"] is string sucesso)
+{
+    <div class="alert alert-success">@sucesso</div>
+}
 @if (TempData["Erro"] is string erro)
 {
     <div class="alert alert-danger">@erro</div>
@@ -13,10 +17,15 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Categoria</th>
+            <th>Conta</th>
             <th>Descricao</th>
             <th>Valor</th>
-            <th>Tipo</th>
-            <th>Ativo</th>
+            <th>Frequencia</th>
+            <th>Dia Ref.</th>
+            <th>Inicio</th>
+            <th>Ultima Geracao</th>
+            <th>Status</th>
             <th></th>
         </tr>
     </thead>
@@ -24,13 +33,23 @@
     @foreach (var item in Model)
     {
         <tr>
+            <td>@item.Categoria?.Nome</td>
+            <td>@item.Conta?.Nome</td>
             <td>@item.Descricao</td>
-            <td>@item.Valor</td>
-            <td>@item.Tipo</td>
-            <td>@item.Ativo</td>
+            <td>@item.Valor.ToString("C")</td>
+            <td>@item.Frequencia</td>
+            <td>@item.DiaReferencia</td>
+            <td>@item.DataInicial.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@(item.UltimaGeracaoEm?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+            <td>@(item.Ativo ? "Ativo" : "Inativo")</td>
             <td>
                 <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
                 <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">Detalhes</a>
+                <form asp-action="GerarAgora" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <button type="submit" class="btn btn-secondary" @(item.Ativo ? null : "disabled")>Gerar Agora</button>
+                </form>
                 <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Excluir</a>
             </td>
         </tr>

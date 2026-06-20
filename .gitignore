@@ -9,6 +9,7 @@ obj/
 
 # Logs
 *.log
+.codex-build/
 
 # VS Code
 .vscode/

@@ -9,15 +9,18 @@ namespace FinanceHub.Services
     {
         private readonly IRepository<LancamentoRecorrente> _repository;
         private readonly IRepository<Categoria> _categoriaRepository;
+        private readonly IRepository<Conta> _contaRepository;
         private readonly UsuarioAtualService _usuarioAtualService;
 
         public LancamentoRecorrenteService(
             IRepository<LancamentoRecorrente> repository,
             IRepository<Categoria> categoriaRepository,
+            IRepository<Conta> contaRepository,
             UsuarioAtualService usuarioAtualService)
         {
             _repository = repository;
             _categoriaRepository = categoriaRepository;
+            _contaRepository = contaRepository;
             _usuarioAtualService = usuarioAtualService;
         }
 
@@ -26,7 +29,8 @@ namespace FinanceHub.Services
             var usuarioId = _usuarioAtualService.ObterUsuarioId();
             return _repository.FindAllAsync(
                 item => item.UsuarioId == usuarioId,
-                item => item.Categoria);
+                item => item.Categoria!,
+                item => item.Conta!);
         }
 
         public Task<LancamentoRecorrente?> FindByIdAsync(int id)
@@ -34,14 +38,16 @@ namespace FinanceHub.Services
             var usuarioId = _usuarioAtualService.ObterUsuarioId();
             return _repository.FindFirstAsync(
                 item => item.Id == id && item.UsuarioId == usuarioId,
-                item => item.Categoria);
+                item => item.Categoria!,
+                item => item.Conta!);
         }
 
         public async Task InsertAsync(LancamentoRecorrente lancamento)
         {
-            var categoria = await ValidarAsync(lancamento);
+            var usuarioId = _usuarioAtualService.ObterUsuarioId();
+            var categoria = await ValidarAsync(lancamento, usuarioId);
 
-            lancamento.UsuarioId = _usuarioAtualService.ObterUsuarioId();
+            lancamento.UsuarioId = usuarioId;
             lancamento.Tipo = categoria.TipoCategoria;
             lancamento.Descricao = lancamento.Descricao.Trim();
             lancamento.Ativo = true;
@@ -51,7 +57,8 @@ namespace FinanceHub.Services
 
         public async Task Update(LancamentoRecorrente lancamento)
         {
-            var categoria = await ValidarAsync(lancamento);
+            var usuarioId = _usuarioAtualService.ObterUsuarioId();
+            var categoria = await ValidarAsync(lancamento, usuarioId);
             var atual = await FindByIdAsync(lancamento.Id);
 
             if (atual == null)
@@ -60,6 +67,7 @@ namespace FinanceHub.Services
             }
 
             atual.CategoriaId = lancamento.CategoriaId;
+            atual.ContaId = lancamento.ContaId;
             atual.Tipo = categoria.TipoCategoria;
             atual.Descricao = lancamento.Descricao.Trim();
             atual.Valor = lancamento.Valor;
@@ -82,7 +90,7 @@ namespace FinanceHub.Services
             await _repository.RemoveAsync(entity);
         }
 
-        private async Task<Categoria> ValidarAsync(LancamentoRecorrente lancamento)
+        private async Task<Categoria> ValidarAsync(LancamentoRecorrente lancamento, int usuarioId)
         {
             if (string.IsNullOrWhiteSpace(lancamento.Descricao)
                 || lancamento.Descricao.Trim().Length is < 3 or > 200)
@@ -103,7 +111,30 @@ namespace FinanceHub.Services
             ValidarDiaReferencia(lancamento.Frequencia, lancamento.DiaReferencia);
 
             var categoria = await _categoriaRepository.FindByIdAsync(lancamento.CategoriaId);
-            return categoria ?? throw new RegraNegocioException("Categoria nao encontrada.");
+            if (categoria == null)
+            {
+                throw new RegraNegocioException("Categoria nao encontrada.");
+            }
+
+            if (!lancamento.ContaId.HasValue || lancamento.ContaId.Value <= 0)
+            {
+                throw new RegraNegocioException("Informe uma conta para a recorrencia.");
+            }
+
+            var conta = await _contaRepository.FindFirstAsync(
+                item => item.Id == lancamento.ContaId.Value && item.UsuarioId == usuarioId);
+
+            if (conta == null)
+            {
+                throw new RegraNegocioException("A conta informada nao pertence ao usuario autenticado.");
+            }
+
+            if (!conta.Ativa)
+            {
+                throw new RegraNegocioException("Nao e permitido vincular recorrencia a uma conta inativa.");
+            }
+
+            return categoria;
         }
 
         private static void ValidarDiaReferencia(

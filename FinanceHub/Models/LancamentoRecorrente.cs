@@ -7,21 +7,32 @@ namespace FinanceHub.Models
     {
         public int Id { get; set; }
         public int UsuarioId { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Informe uma categoria.")]
         public int CategoriaId { get; set; }
+        [Required(ErrorMessage = "Informe uma conta.")]
+        public int? ContaId { get; set; }
         [Required(ErrorMessage = "Informe a descricao.")]
         [StringLength(200, MinimumLength = 3, ErrorMessage = "A descricao deve ter entre 3 e 200 caracteres.")]
         public string Descricao { get; set; } = string.Empty;
 
-        [Range(typeof(decimal), "0.01", "9999999999999999", ErrorMessage = "O valor deve ser maior que zero.")]
+        [Range(
+            typeof(decimal),
+            "0.01",
+            "9999999999999999",
+            ParseLimitsInInvariantCulture = true,
+            ConvertValueInInvariantCulture = true,
+            ErrorMessage = "O valor deve ser maior que zero.")]
         public decimal Valor { get; set; }
         public TipoCategoria Tipo { get; set; }
         public DateTime DataInicial { get; set; }
         public FrequenciaRecorrencia Frequencia { get; set; }
         public int DiaReferencia { get; set; }
         public bool Ativo { get; set; }
+        public DateTime? UltimaGeracaoEm { get; set; }
 
         public Usuario Usuario { get; set; } = null!;
         public Categoria Categoria { get; set; } = null!;
+        public Conta? Conta { get; set; }
 
         public LancamentoRecorrente()
         {

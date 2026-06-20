@@ -141,6 +141,11 @@ namespace FinanceHub.Data
                     .HasForeignKey(e => e.CategoriaId)
                     .OnDelete(DeleteBehavior.Restrict);
 
+                entity.HasOne(e => e.Conta)
+                    .WithMany()
+                    .HasForeignKey(e => e.ContaId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
                 entity.Property(e => e.Frequencia).HasConversion<int>();
                 entity.Property(e => e.Tipo).HasConversion<int>();
             });

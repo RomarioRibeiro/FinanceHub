@@ -1,9 +1,12 @@
 using FinanceHub.Data;
+using FinanceHub.ModelBinders;
 using FinanceHub.Repositories;
 using FinanceHub.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +40,10 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.ModelBinderProviders.Insert(0, new DecimalModelBinderProvider());
+});
 builder.Services.AddScoped<CategoriaService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<AutenticacaoService>();
@@ -49,8 +55,22 @@ builder.Services.AddScoped<TransacaoService>();
 builder.Services.AddScoped<MetaService>();
 builder.Services.AddScoped<LancamentoRecorrenteService>();
 builder.Services.AddScoped<RelatorioService>();
+builder.Services.AddScoped<RecorrenciaProcessorService>();
+builder.Services.AddHostedService<RecorrenciaBackgroundService>();
 
 var app = builder.Build();
+
+var supportedCultures = new[]
+{
+    new CultureInfo("pt-BR")
+};
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("pt-BR"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
 
 if (!app.Environment.IsDevelopment())
 {

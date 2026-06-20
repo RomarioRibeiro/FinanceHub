@@ -1,33 +1,60 @@
 using FinanceHub.Models;
+using FinanceHub.Models.ViewModels;
 using FinanceHub.Repositories;
 
 namespace FinanceHub.Services
 {
     public class SaldoService
     {
-        private readonly IRepository<Saldo> _repository;
+        private readonly IRepository<Conta> _contaRepository;
         private readonly UsuarioAtualService _usuarioAtualService;
 
-        public SaldoService(IRepository<Saldo> repository, UsuarioAtualService usuarioAtualService)
+        public SaldoService(IRepository<Conta> contaRepository, UsuarioAtualService usuarioAtualService)
         {
-            _repository = repository;
+            _contaRepository = contaRepository;
             _usuarioAtualService = usuarioAtualService;
         }
 
-        public Task<List<Saldo>> FindAllAsync()
+        public async Task<List<SaldoContaViewModel>> FindAllAsync()
         {
             var usuarioId = _usuarioAtualService.ObterUsuarioId();
-            return _repository.FindAllAsync(
-                saldo => saldo.Conta.UsuarioId == usuarioId,
-                saldo => saldo.Conta);
+            var contas = await _contaRepository.FindAllAsync(
+                conta => conta.UsuarioId == usuarioId);
+
+            return contas
+                .OrderBy(conta => conta.Nome)
+                .Select(conta => new SaldoContaViewModel
+                {
+                    ContaId = conta.Id,
+                    ContaNome = conta.Nome,
+                    TipoConta = conta.Tipo,
+                    SaldoInicial = conta.SaldoInicial,
+                    SaldoAtual = conta.SaldoAtual,
+                    Ativa = conta.Ativa
+                })
+                .ToList();
         }
 
-        public Task<Saldo?> FindByIdAsync(int id)
+        public async Task<SaldoContaViewModel?> FindByIdAsync(int id)
         {
             var usuarioId = _usuarioAtualService.ObterUsuarioId();
-            return _repository.FindFirstAsync(
-                saldo => saldo.Id == id && saldo.Conta.UsuarioId == usuarioId,
-                saldo => saldo.Conta);
+            var conta = await _contaRepository.FindFirstAsync(
+                item => item.Id == id && item.UsuarioId == usuarioId);
+
+            if (conta == null)
+            {
+                return null;
+            }
+
+            return new SaldoContaViewModel
+            {
+                ContaId = conta.Id,
+                ContaNome = conta.Nome,
+                TipoConta = conta.Tipo,
+                SaldoInicial = conta.SaldoInicial,
+                SaldoAtual = conta.SaldoAtual,
+                Ativa = conta.Ativa
+            };
         }
     }
 }
