@@ -1,4 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("[data-password-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const wrapper = button.closest(".password-field");
+            const input = wrapper?.querySelector("input");
+            const icon = button.querySelector("i");
+
+            if (!input || !icon) {
+                return;
+            }
+
+            const showPassword = input.type === "password";
+            input.type = showPassword ? "text" : "password";
+            button.setAttribute("aria-label", showPassword ? "Ocultar senha" : "Mostrar senha");
+            button.setAttribute("aria-pressed", String(showPassword));
+            icon.className = showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+        });
+    });
+
     const shell = document.getElementById("appShell");
     const desktopToggle = document.getElementById("sidebarToggle");
     const mobileToggle = document.getElementById("mobileMenuToggle");

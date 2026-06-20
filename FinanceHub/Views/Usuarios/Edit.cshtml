@@ -21,8 +21,17 @@
     </div>
     <div class="mb-3">
         <label asp-for="SenhaHash" class="form-label">Nova senha</label>
-        <input asp-for="SenhaHash" class="form-control" type="password" autocomplete="new-password"
-               placeholder="Deixe vazio para manter a senha atual" />
+        <div class="password-field">
+            <input asp-for="SenhaHash" class="form-control" type="password" autocomplete="new-password"
+                   placeholder="Deixe vazio para manter a senha atual" />
+            <button type="button"
+                    class="password-toggle"
+                    data-password-toggle
+                    aria-label="Mostrar senha"
+                    aria-pressed="false">
+                <i class="fa-solid fa-eye"></i>
+            </button>
+        </div>
         <span asp-validation-for="SenhaHash" class="text-danger"></span>
     </div>
     <div class="mb-3 form-check">

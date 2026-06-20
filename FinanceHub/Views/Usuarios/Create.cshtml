@@ -20,7 +20,16 @@
     </div>
     <div class="mb-3">
         <label asp-for="SenhaHash" class="form-label">Senha</label>
-        <input asp-for="SenhaHash" class="form-control" type="password" autocomplete="new-password" />
+        <div class="password-field">
+            <input asp-for="SenhaHash" class="form-control" type="password" autocomplete="new-password" />
+            <button type="button"
+                    class="password-toggle"
+                    data-password-toggle
+                    aria-label="Mostrar senha"
+                    aria-pressed="false">
+                <i class="fa-solid fa-eye"></i>
+            </button>
+        </div>
         <span asp-validation-for="SenhaHash" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Salvar</button>

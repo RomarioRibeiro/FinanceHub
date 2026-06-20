@@ -1,59 +1,225 @@
+@using System.Globalization
+@model FinanceHub.Models.ViewModels.HomeDashboardViewModel
+
 @{
     ViewData["Title"] = "Visao geral";
+
+    var cultura = CultureInfo.GetCultureInfo("en-US");
+    var maiorFluxo = Math.Max(1m, Model.FluxoMensal.SelectMany(item => new[] { item.Receitas, item.Despesas }).DefaultIfEmpty(1m).Max());
+    var totalCategorias = Math.Max(1m, Model.DespesasPorCategoria.Sum(item => item.Valor));
+    var donutStops = new List<string>();
+    var acumulado = 0m;
+
+    foreach (var categoria in Model.DespesasPorCategoria)
+    {
+        var inicio = acumulado / totalCategorias * 100m;
+        acumulado += categoria.Valor;
+        var fim = acumulado / totalCategorias * 100m;
+        donutStops.Add($"{categoria.Cor} {inicio.ToString("0.##", cultura)}% {fim.ToString("0.##", cultura)}%");
+    }
+
+    var donutBackground = donutStops.Count == 0
+        ? "conic-gradient(#dce5df 0 100%)"
+        : $"conic-gradient({string.Join(", ", donutStops)})";
 }
 
-<section class="home-hero">
-    <div>
-        <span class="home-kicker">Controle financeiro pessoal</span>
-        <h1>Decisoes melhores com suas financas organizadas.</h1>
+<section class="home-dashboard-hero">
+    <div class="home-dashboard-copy">
+        <span class="home-kicker">Painel financeiro</span>
+        <h1>Seus gastos e lancamentos com leitura imediata.</h1>
         <p>
-            Centralize contas, transacoes, metas e recorrencias em uma experiencia
-            simples para acompanhar sua vida financeira.
+            Acompanhe saldo, fluxo mensal, concentracao das despesas e os movimentos
+            mais recentes sem sair da tela inicial.
         </p>
         <div class="home-hero-actions">
             <a class="btn btn-light" asp-controller="Transacoes" asp-action="Create">
                 <i class="fa-solid fa-plus"></i>
-                Nova transacao
+                Novo lancamento
             </a>
-            <a class="btn btn-secondary" asp-controller="Contas" asp-action="Index">
-                Ver contas
+            <a class="btn btn-secondary" asp-controller="Relatorios" asp-action="Index">
+                Ver relatorios
             </a>
         </div>
     </div>
 
-    <div class="home-summary" aria-label="Recursos principais">
-        <div class="home-summary-card">
-            <i class="fa-solid fa-wallet"></i>
-            <strong>Contas</strong>
-            <span>Saldos organizados em um unico lugar</span>
-        </div>
-        <div class="home-summary-card">
-            <i class="fa-solid fa-arrow-right-arrow-left"></i>
-            <strong>Movimentacoes</strong>
-            <span>Receitas e despesas categorizadas</span>
-        </div>
-        <div class="home-summary-card">
-            <i class="fa-solid fa-bullseye"></i>
-            <strong>Planejamento</strong>
-            <span>Metas e relatorios para evoluir</span>
-        </div>
+    <div class="home-hero-highlight">
+        <span>Resultado de @Model.PeriodoReferencia</span>
+        <strong class="@(Model.ResultadoMes >= 0 ? "is-positive" : "is-negative")">
+            @Model.ResultadoMes.ToString("C")
+        </strong>
+        <small>Maior gasto: @Model.MaiorGastoDescricao</small>
+        <em>@Model.MaiorGastoValor.ToString("C")</em>
     </div>
 </section>
 
-<section class="home-grid" aria-label="Atalhos do sistema">
-    <article class="feature-card">
-        <i class="fa-solid fa-tags"></i>
-        <h2>Categorize com clareza</h2>
-        <p>Organize cada movimentacao para entender onde seu dinheiro entra e sai.</p>
+<section class="home-stat-grid" aria-label="Resumo financeiro">
+    <article class="home-stat-card tone-balance">
+        <span class="home-stat-label">Saldo total</span>
+        <strong>@Model.SaldoTotal.ToString("C")</strong>
+        <small>@Model.ContasAtivas conta(s) ativa(s)</small>
     </article>
-    <article class="feature-card">
-        <i class="fa-solid fa-rotate"></i>
-        <h2>Controle recorrencias</h2>
-        <p>Registre compromissos recorrentes e mantenha a previsibilidade financeira.</p>
+    <article class="home-stat-card tone-income">
+        <span class="home-stat-label">Receitas no mes</span>
+        <strong>@Model.ReceitasMes.ToString("C")</strong>
+        <small>@Model.LancamentosMes lançamento(s) no periodo</small>
     </article>
-    <article class="feature-card">
-        <i class="fa-solid fa-chart-column"></i>
-        <h2>Acompanhe resultados</h2>
-        <p>Use metas, saldos e relatorios para transformar dados em decisoes.</p>
+    <article class="home-stat-card tone-expense">
+        <span class="home-stat-label">Despesas no mes</span>
+        <strong>@Model.DespesasMes.ToString("C")</strong>
+        <small>Gasto medio: @Model.GastoMedioMes.ToString("C")</small>
+    </article>
+    <article class="home-stat-card tone-goal">
+        <span class="home-stat-label">Planejamento ativo</span>
+        <strong>@Model.ProgressoMetasMedio.ToString("0.0")%</strong>
+        <small>@Model.MetasAtivas meta(s) ativa(s) e @Model.RecorrenciasAtivas recorrencia(s)</small>
+    </article>
+</section>
+
+<section class="home-analytics-grid" aria-label="Analise financeira">
+    <article class="analytics-panel">
+        <div class="section-heading">
+            <div>
+                <span>Fluxo mensal</span>
+                <h2>Receitas x despesas</h2>
+            </div>
+            <small>Ultimos 6 meses</small>
+        </div>
+
+        <div class="flow-chart">
+            @foreach (var item in Model.FluxoMensal)
+            {
+                var receitaAltura = Math.Max(10m, item.Receitas / maiorFluxo * 100m);
+                var despesaAltura = Math.Max(10m, item.Despesas / maiorFluxo * 100m);
+
+                <div class="flow-chart-group">
+                    <div class="flow-chart-bars">
+                        <div class="flow-bar flow-income"
+                             style="height:@receitaAltura.ToString("0.##", cultura)%"
+                             title="Receitas @item.Receitas.ToString("C")"></div>
+                        <div class="flow-bar flow-expense"
+                             style="height:@despesaAltura.ToString("0.##", cultura)%"
+                             title="Despesas @item.Despesas.ToString("C")"></div>
+                    </div>
+                    <strong>@item.Mes</strong>
+                    <small class="@(item.Resultado >= 0 ? "is-positive" : "is-negative")">
+                        @item.Resultado.ToString("C0")
+                    </small>
+                </div>
+            }
+        </div>
+    </article>
+
+    <article class="analytics-panel">
+        <div class="section-heading">
+            <div>
+                <span>Concentracao das despesas</span>
+                <h2>Onde o dinheiro sai</h2>
+            </div>
+            <small>Top categorias do ano</small>
+        </div>
+
+        <div class="expense-breakdown">
+            <div class="expense-donut" style="background:@donutBackground">
+                <div class="expense-donut-core">
+                    <strong>@Model.DespesasMes.ToString("C0")</strong>
+                    <span>despesas no mes</span>
+                </div>
+            </div>
+
+            <div class="expense-legend">
+                @if (Model.DespesasPorCategoria.Count == 0)
+                {
+                    <p class="empty-note">Sem despesas suficientes para montar a distribuicao.</p>
+                }
+                else
+                {
+                    @foreach (var categoria in Model.DespesasPorCategoria)
+                    {
+                        <div class="expense-legend-row">
+                            <div class="expense-legend-name">
+                                <span class="expense-swatch" style="background:@categoria.Cor"></span>
+                                <strong>@categoria.Categoria</strong>
+                            </div>
+                            <div class="expense-legend-values">
+                                <span>@categoria.Valor.ToString("C")</span>
+                                <small>@categoria.Percentual.ToString("0.0")%</small>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </article>
+</section>
+
+<section class="home-activity-grid" aria-label="Lancamentos recentes">
+    <article class="activity-panel">
+        <div class="section-heading">
+            <div>
+                <span>Ultimos movimentos</span>
+                <h2>Lancamentos recentes</h2>
+            </div>
+            <a asp-controller="Transacoes" asp-action="Index">Abrir transacoes</a>
+        </div>
+
+        <div class="transaction-stream">
+            @foreach (var item in Model.LancamentosRecentes)
+            {
+                <div class="transaction-row">
+                    <div>
+                        <strong>@item.Descricao</strong>
+                        <span>@item.Categoria • @item.Conta</span>
+                    </div>
+                    <div class="transaction-value-block">
+                        <strong class="@(item.EhReceita ? "is-positive" : "is-negative")">
+                            @((item.EhReceita ? "+" : "-") + item.Valor.ToString("C"))
+                        </strong>
+                        <span>@item.Data.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </article>
+
+    <article class="activity-panel compact-panel">
+        <div class="section-heading">
+            <div>
+                <span>Leitura rapida</span>
+                <h2>Sinais do periodo</h2>
+            </div>
+        </div>
+
+        <div class="insight-list">
+            <div class="insight-item">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                <div>
+                    <strong>Resultado do mes</strong>
+                    <span class="@(Model.ResultadoMes >= 0 ? "is-positive" : "is-negative")">
+                        @Model.ResultadoMes.ToString("C")
+                    </span>
+                </div>
+            </div>
+            <div class="insight-item">
+                <i class="fa-solid fa-receipt"></i>
+                <div>
+                    <strong>Lancamentos registrados</strong>
+                    <span>@Model.LancamentosMes no periodo atual</span>
+                </div>
+            </div>
+            <div class="insight-item">
+                <i class="fa-solid fa-rotate"></i>
+                <div>
+                    <strong>Recorrencias ativas</strong>
+                    <span>@Model.RecorrenciasAtivas configurada(s)</span>
+                </div>
+            </div>
+            <div class="insight-item">
+                <i class="fa-solid fa-bullseye"></i>
+                <div>
+                    <strong>Metas em andamento</strong>
+                    <span>@Model.MetasAtivas ativa(s) com media de @Model.ProgressoMetasMedio.ToString("0.0")%</span>
+                </div>
+            </div>
+        </div>
     </article>
 </section>
