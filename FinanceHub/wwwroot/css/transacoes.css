@@ -1,0 +1,284 @@
+.transaction-page-header {
+  margin-bottom: 24px;
+}
+
+.transaction-page-header h1 {
+  color: var(--page-ink);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  letter-spacing: -0.04em;
+  margin: 6px 0 8px;
+}
+
+.transaction-page-header p,
+.transaction-section-heading p {
+  color: var(--page-muted);
+  margin: 0;
+}
+
+.transaction-kicker {
+  color: var(--page-green);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.transaction-alert {
+  align-items: center;
+  border-radius: 14px;
+  display: flex;
+  gap: 14px;
+  max-width: 1040px;
+}
+
+.transaction-alert i {
+  font-size: 1.15rem;
+}
+
+.transaction-alert strong {
+  display: block;
+}
+
+.page-content.page-create > .transaction-form {
+  display: block;
+  max-width: 1040px;
+  padding: 0;
+}
+
+.transaction-validation {
+  margin: 24px 24px 0;
+}
+
+.transaction-section {
+  border-bottom: 1px solid var(--page-border);
+  display: grid;
+  gap: clamp(22px, 4vw, 42px);
+  grid-template-columns: minmax(220px, 0.38fr) minmax(0, 1fr);
+  padding: clamp(24px, 4vw, 38px);
+}
+
+.transaction-section-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 14px;
+}
+
+.transaction-section-heading h2 {
+  color: var(--page-ink);
+  font-size: 1.08rem;
+  margin: 1px 0 6px;
+}
+
+.transaction-section-heading p {
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.transaction-section-icon {
+  align-items: center;
+  background: var(--page-green-soft);
+  border-radius: 12px;
+  color: var(--page-green);
+  display: flex;
+  flex: 0 0 42px;
+  height: 42px;
+  justify-content: center;
+}
+
+.transaction-fields {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.transaction-field-full {
+  grid-column: 1 / -1;
+}
+
+.transaction-field .form-label,
+.transaction-payment-method legend {
+  display: block;
+  width: auto;
+}
+
+.transaction-field .form-label small {
+  color: var(--page-muted);
+  font-weight: 500;
+}
+
+.transaction-money-input,
+.transaction-readonly-input {
+  position: relative;
+}
+
+.transaction-money-input > span,
+.transaction-readonly-input > i {
+  color: var(--page-muted);
+  left: 14px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.transaction-money-input > span {
+  font-weight: 800;
+}
+
+.transaction-money-input .form-control {
+  padding-left: 44px;
+}
+
+.transaction-readonly-input .form-control {
+  padding-left: 42px;
+}
+
+.transaction-payment-method {
+  border: 0;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.transaction-payment-options {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.transaction-payment-option {
+  align-items: center;
+  background: #f9fbfa;
+  border: 1px solid #cedad3;
+  border-radius: 14px;
+  cursor: pointer;
+  display: grid !important;
+  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  margin: 0 !important;
+  min-height: 78px;
+  padding: 14px 16px;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.transaction-payment-option:has(input:checked) {
+  background: #f3f8f5;
+  border-color: var(--page-green);
+  box-shadow: 0 0 0 3px rgba(82, 124, 105, 0.12);
+}
+
+.transaction-payment-option:focus-within {
+  border-color: #527c69;
+  box-shadow: 0 0 0 4px rgba(82, 124, 105, 0.14);
+}
+
+.transaction-payment-option input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.transaction-option-icon {
+  align-items: center;
+  background: var(--page-green-soft);
+  border-radius: 10px;
+  color: var(--page-green);
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+
+.transaction-payment-option strong,
+.transaction-payment-option small {
+  display: block;
+}
+
+.transaction-payment-option small {
+  color: var(--page-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  margin-top: 3px;
+}
+
+.transaction-option-check {
+  color: var(--page-green);
+  opacity: 0;
+}
+
+.transaction-payment-option:has(input:checked) .transaction-option-check {
+  opacity: 1;
+}
+
+.transaction-installments {
+  align-items: stretch;
+  background: #f5f8f6;
+  border: 1px solid var(--page-border);
+  border-radius: 14px;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(180px, 0.7fr) minmax(220px, 1fr);
+  padding: 18px;
+}
+
+.transaction-installments[hidden] {
+  display: none;
+}
+
+.transaction-total {
+  background: var(--page-green);
+  border-radius: 12px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 20px;
+}
+
+.transaction-total span,
+.transaction-total small {
+  color: #c8d8d1;
+  font-size: 0.72rem;
+}
+
+.transaction-total strong {
+  font-size: 1.6rem;
+  margin: 4px 0;
+}
+
+.transaction-actions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 24px clamp(24px, 4vw, 38px);
+}
+
+.transaction-actions .btn {
+  gap: 9px;
+  min-width: 132px;
+}
+
+@media (max-width: 800px) {
+  .transaction-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .transaction-fields,
+  .transaction-payment-options,
+  .transaction-installments {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .transaction-actions .btn {
+    width: 100%;
+  }
+}

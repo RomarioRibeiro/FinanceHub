@@ -1,78 +1,204 @@
-@using FinanceHub.Models.Enums
-@model FinanceHub.Models.Transacao
+@model FinanceHub.Models.ViewModels.TransacaoCreateViewModel
 
 @{
-    ViewData["Title"] = "Cadastro Transacao";
+    ViewData["Title"] = "Nova transação";
 }
 
-<h1>@ViewData["Title"]</h1>
+<link rel="stylesheet" href="~/css/transacoes.css" asp-append-version="true" />
 
-<form asp-action="Create">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<header class="transaction-page-header">
+    <span class="transaction-kicker">Movimentação financeira</span>
+    <h1>@ViewData["Title"]</h1>
+    <p>Registre os dados da movimentação e confira o valor antes de salvar.</p>
+</header>
 
-    @if (!(ViewBag.PossuiCategorias as bool? ?? false))
-    {
-        <div class="alert alert-warning">
-            Nenhuma categoria cadastrada.
+@if (!(ViewBag.PossuiCategorias as bool? ?? false))
+{
+    <div class="alert alert-warning transaction-alert" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <div>
+            <strong>Nenhuma categoria cadastrada.</strong>
             <a asp-controller="Categorias" asp-action="Create">Cadastrar categoria</a>
         </div>
-    }
+    </div>
+}
 
-    @if (!(ViewBag.PossuiContas as bool? ?? false))
-    {
-        <div class="alert alert-warning">
-            Nenhuma conta ativa disponivel.
+@if (!(ViewBag.PossuiContas as bool? ?? false))
+{
+    <div class="alert alert-warning transaction-alert" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <div>
+            <strong>Nenhuma conta ativa disponível.</strong>
             <a asp-controller="Contas" asp-action="Create">Cadastrar conta</a>
         </div>
-    }
+    </div>
+}
 
-    <div class="mb-3">
-        <label asp-for="CategoriaId" class="form-label">Categoria</label>
-        <select asp-for="CategoriaId"
-                asp-items="ViewBag.Categorias"
-                class="form-select"
-                disabled="@(!(ViewBag.PossuiCategorias as bool? ?? false) ? "disabled" : null)">
-            <option value="">Selecione uma categoria</option>
-        </select>
-        <span asp-validation-for="CategoriaId" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="ContaId" class="form-label">Conta</label>
-        <select asp-for="ContaId"
-                asp-items="ViewBag.Contas"
-                class="form-select"
-                disabled="@(!(ViewBag.PossuiContas as bool? ?? false) ? "disabled" : null)">
-            <option value="">Selecione uma conta</option>
-        </select>
-        <span asp-validation-for="ContaId" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Descricao" class="form-label"></label>
-        <input asp-for="Descricao" class="form-control" />
-        <span asp-validation-for="Descricao" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Valor" class="form-label"></label>
-        <input asp-for="Valor" class="form-control" inputmode="decimal" />
-        <span asp-validation-for="Valor" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Data" class="form-label"></label>
-        <input asp-for="Data" type="hidden" />
-        <input class="form-control" value="@Model.Data.ToString("dd/MM/yyyy HH:mm")" readonly />
-        <span asp-validation-for="Data" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Observacao" class="form-label"></label>
-        <textarea asp-for="Observacao" class="form-control"></textarea>
-        <span asp-validation-for="Observacao" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-primary" disabled="@(!(ViewBag.PodeSalvar as bool? ?? false) ? "disabled" : null)">Salvar</button>
-    <a class="btn btn-secondary" asp-action="Index">Voltar</a>
+<form asp-action="Create" class="transaction-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger transaction-validation"></div>
+
+    <section class="transaction-section" aria-labelledby="dadosTransacaoTitulo">
+        <div class="transaction-section-heading">
+            <span class="transaction-section-icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+            <div>
+                <h2 id="dadosTransacaoTitulo">Dados da transação</h2>
+                <p>Identifique onde e como esta movimentação será registrada.</p>
+            </div>
+        </div>
+
+        <div class="transaction-fields">
+            <div class="transaction-field">
+                <label asp-for="CategoriaId" class="form-label">Categoria</label>
+                <select asp-for="CategoriaId"
+                        asp-items="ViewBag.Categorias"
+                        class="form-select"
+                        disabled="@(!(ViewBag.PossuiCategorias as bool? ?? false) ? "disabled" : null)">
+                    <option value="">Selecione uma categoria</option>
+                </select>
+                <span asp-validation-for="CategoriaId" class="text-danger"></span>
+            </div>
+
+            <div class="transaction-field">
+                <label asp-for="ContaId" class="form-label">Conta</label>
+                <select asp-for="ContaId"
+                        asp-items="ViewBag.Contas"
+                        class="form-select"
+                        disabled="@(!(ViewBag.PossuiContas as bool? ?? false) ? "disabled" : null)">
+                    <option value="">Selecione uma conta</option>
+                </select>
+                <span asp-validation-for="ContaId" class="text-danger"></span>
+            </div>
+
+            <div class="transaction-field transaction-field-full">
+                <label asp-for="Descricao" class="form-label">Descrição</label>
+                <input asp-for="Descricao" class="form-control" placeholder="Ex.: Compra no supermercado" />
+                <span asp-validation-for="Descricao" class="text-danger"></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="transaction-section" aria-labelledby="pagamentoTitulo">
+        <div class="transaction-section-heading">
+            <span class="transaction-section-icon"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span>
+            <div>
+                <h2 id="pagamentoTitulo">Pagamento</h2>
+                <p>Informe o valor e escolha a forma de pagamento.</p>
+            </div>
+        </div>
+
+        <div class="transaction-fields transaction-payment-fields">
+            <div class="transaction-field">
+                <label asp-for="Valor" class="form-label">Valor</label>
+                <div class="transaction-money-input">
+                    <span>R$</span>
+                    <input asp-for="Valor" class="form-control" inputmode="decimal" placeholder="0,00" />
+                </div>
+                <span asp-validation-for="Valor" class="text-danger"></span>
+            </div>
+
+            <fieldset class="transaction-field transaction-field-full transaction-payment-method">
+                <legend>Forma de pagamento</legend>
+                <div class="transaction-payment-options">
+                    <label class="transaction-payment-option" for="formaPagamentoAvista">
+                        <input asp-for="FormaPagamento" type="radio" value="AVISTA" id="formaPagamentoAvista" />
+                        <span class="transaction-option-icon"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i></span>
+                        <span><strong>À vista</strong><small>Pagamento em uma única vez</small></span>
+                        <i class="fa-solid fa-circle-check transaction-option-check" aria-hidden="true"></i>
+                    </label>
+                    <label class="transaction-payment-option" for="formaPagamentoCredito">
+                        <input asp-for="FormaPagamento" type="radio" value="CREDITO" id="formaPagamentoCredito" />
+                        <span class="transaction-option-icon"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span>
+                        <span><strong>Crédito</strong><small>Valor multiplicado pelas parcelas</small></span>
+                        <i class="fa-solid fa-circle-check transaction-option-check" aria-hidden="true"></i>
+                    </label>
+                </div>
+                <span asp-validation-for="FormaPagamento" class="text-danger"></span>
+            </fieldset>
+
+            <div class="transaction-installments transaction-field-full" id="parcelasContainer" hidden>
+                <div class="transaction-field">
+                    <label asp-for="QuantidadeParcelas" class="form-label">Quantidade de parcelas</label>
+                    <input asp-for="QuantidadeParcelas" class="form-control" type="number" min="1" max="999" placeholder="Ex.: 10" />
+                    <span asp-validation-for="QuantidadeParcelas" class="text-danger"></span>
+                </div>
+                <div class="transaction-total" aria-live="polite">
+                    <span>Valor total da compra</span>
+                    <strong id="valorTotalCredito">R$ 0,00</strong>
+                    <small>Valor informado × quantidade de parcelas</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="transaction-section" aria-labelledby="informacoesTitulo">
+        <div class="transaction-section-heading">
+            <span class="transaction-section-icon"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i></span>
+            <div>
+                <h2 id="informacoesTitulo">Informações adicionais</h2>
+                <p>Confira a data e acrescente uma observação, se necessário.</p>
+            </div>
+        </div>
+
+        <div class="transaction-fields">
+            <div class="transaction-field">
+                <label asp-for="Data" class="form-label">Data do lançamento</label>
+                <input asp-for="Data" type="hidden" />
+                <div class="transaction-readonly-input">
+                    <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                    <input class="form-control" value="@Model.Data.ToString("dd/MM/yyyy HH:mm")" readonly />
+                </div>
+                <span asp-validation-for="Data" class="text-danger"></span>
+            </div>
+
+            <div class="transaction-field transaction-field-full">
+                <label asp-for="Observacao" class="form-label">Observação <small>(opcional)</small></label>
+                <textarea asp-for="Observacao" class="form-control" rows="4" placeholder="Inclua alguma informação relevante sobre esta transação"></textarea>
+                <span asp-validation-for="Observacao" class="text-danger"></span>
+            </div>
+        </div>
+    </section>
+
+    <footer class="transaction-actions">
+        <a class="btn btn-secondary" asp-action="Index">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar
+        </a>
+        <button type="submit" class="btn btn-primary" disabled="@(!(ViewBag.PodeSalvar as bool? ?? false) ? "disabled" : null)">
+            <i class="fa-solid fa-check" aria-hidden="true"></i> Salvar transação
+        </button>
+    </footer>
 </form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        (() => {
+            const formasPagamento = document.querySelectorAll('input[name="FormaPagamento"]');
+            const parcelasContainer = document.getElementById('parcelasContainer');
+            const parcelasInput = document.getElementById('QuantidadeParcelas');
+            const valorInput = document.getElementById('Valor');
+            const valorTotal = document.getElementById('valorTotalCredito');
+
+            function atualizarCredito() {
+                const credito = document.getElementById('formaPagamentoCredito').checked;
+                parcelasContainer.hidden = !credito;
+                parcelasInput.required = credito;
+
+                if (!credito) {
+                    valorTotal.textContent = 'R$ 0,00';
+                    return;
+                }
+
+                const valor = Number.parseFloat(valorInput.value.replace(/\./g, '').replace(',', '.'));
+                const parcelas = Number.parseInt(parcelasInput.value, 10);
+                valorTotal.textContent = Number.isFinite(valor) && parcelas > 0
+                    ? (valor * parcelas).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                    : 'R$ 0,00';
+            }
+
+            formasPagamento.forEach(item => item.addEventListener('change', atualizarCredito));
+            parcelasInput.addEventListener('input', atualizarCredito);
+            valorInput.addEventListener('input', atualizarCredito);
+            atualizarCredito();
+        })();
+    </script>
 }

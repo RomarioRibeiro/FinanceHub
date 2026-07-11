@@ -1,5 +1,6 @@
 using FinanceHub.Models;
 using FinanceHub.Models.Exceptions;
+using FinanceHub.Models.ViewModels;
 using FinanceHub.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -50,35 +51,58 @@ namespace FinanceHub.Controllers
         public async Task<IActionResult> Create()
         {
             await CarregarOpcoesAsync();
-            return View(new Transacao { Data = DateTime.Now });
+            return View(new TransacaoCreateViewModel { Data = DateTime.Now });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Transacao transacao)
+        public async Task<IActionResult> Create(TransacaoCreateViewModel model)
         {
             if (!await ValidarPreRequisitosAsync())
             {
-                await CarregarOpcoesAsync(transacao.CategoriaId, transacao.ContaId);
-                return View(transacao);
+                await CarregarOpcoesAsync(model.CategoriaId, model.ContaId);
+                return View(model);
+            }
+
+            var formaPagamentoValida = model.FormaPagamento is "AVISTA" or "CREDITO";
+            if (!formaPagamentoValida)
+            {
+                ModelState.AddModelError(nameof(model.FormaPagamento), "Informe uma forma de pagamento valida.");
+            }
+
+            if (model.FormaPagamento == "CREDITO" && model.QuantidadeParcelas == null)
+            {
+                ModelState.AddModelError(nameof(model.QuantidadeParcelas), "Informe a quantidade de parcelas.");
             }
 
             if (!ModelState.IsValid)
             {
-                await CarregarOpcoesAsync(transacao.CategoriaId, transacao.ContaId);
-                return View(transacao);
+                await CarregarOpcoesAsync(model.CategoriaId, model.ContaId);
+                return View(model);
             }
 
             try
             {
+                var multiplicador = model.FormaPagamento == "CREDITO"
+                    ? model.QuantidadeParcelas!.Value
+                    : 1;
+                var transacao = new Transacao
+                {
+                    CategoriaId = model.CategoriaId,
+                    ContaId = model.ContaId,
+                    Descricao = model.Descricao,
+                    Valor = model.Valor * multiplicador,
+                    Data = model.Data,
+                    Observacao = model.Observacao
+                };
                 await _transacaoService.InsertAsync(transacao);
                 return RedirectToAction(nameof(Index));
             }
             catch (RegraNegocioException ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
-                await CarregarOpcoesAsync(transacao.CategoriaId, transacao.ContaId);
-                return View(transacao);
+                await CarregarOpcoesAsync(model.CategoriaId, model.ContaId);
+                return View(model);
             }
         }
 
