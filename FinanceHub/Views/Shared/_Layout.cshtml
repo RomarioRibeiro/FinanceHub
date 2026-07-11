@@ -2,6 +2,7 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var pageActionClass = $"page-{currentAction?.ToLowerInvariant()}";
+    var userIsAdmin = User.IsInRole("Administrador");
     var cadastrosAtivo = new[] { "Usuarios", "Perfis", "Categorias", "Contas" }.Contains(currentController);
     var movimentacoesAtivo = new[] { "Transacoes", "LancamentosRecorrentes", "Saldos" }.Contains(currentController);
     var planejamentoAtivo = new[] { "Metas", "Relatorios" }.Contains(currentController);
@@ -59,9 +60,12 @@
                     <div id="cadastrosMenu" class="accordion-collapse collapse @(cadastrosAtivo ? "show" : null)"
                         data-bs-parent="#sidebarAccordion">
                         <div class="sidebar-accordion-body">
-                            <a class="sidebar-link @(currentController == "Usuarios" ? "active" : null)" asp-controller="Usuarios" asp-action="Index"><i class="fa-solid fa-user"></i><span>Usuarios</span></a>
-                            <a class="sidebar-link @(currentController == "Perfis" ? "active" : null)" asp-controller="Perfis" asp-action="Index"><i class="fa-solid fa-user-shield"></i><span>Perfis</span></a>
-                            <a class="sidebar-link @(currentController == "Categorias" ? "active" : null)" asp-controller="Categorias" asp-action="Index"><i class="fa-solid fa-tags"></i><span>Categorias</span></a>
+                            @if (userIsAdmin)
+                            {
+                                <a class="sidebar-link @(currentController == "Usuarios" ? "active" : null)" asp-controller="Usuarios" asp-action="Index"><i class="fa-solid fa-user"></i><span>Usuarios</span></a>
+                                <a class="sidebar-link @(currentController == "Perfis" ? "active" : null)" asp-controller="Perfis" asp-action="Index"><i class="fa-solid fa-user-shield"></i><span>Perfis</span></a>
+                                <a class="sidebar-link @(currentController == "Categorias" ? "active" : null)" asp-controller="Categorias" asp-action="Index"><i class="fa-solid fa-tags"></i><span>Categorias</span></a>
+                            }
                             <a class="sidebar-link @(currentController == "Contas" ? "active" : null)" asp-controller="Contas" asp-action="Index"><i class="fa-solid fa-wallet"></i><span>Contas</span></a>
                         </div>
                     </div>

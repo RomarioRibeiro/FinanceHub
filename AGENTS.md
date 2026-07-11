@@ -1,49 +1,52 @@
-# Repository Guidelines
+# Diretrizes do Repositorio
 
-## Project Structure & Module Organization
-The solution entry point is `FinanceHub.sln`. The web application lives in `FinanceHub/` and follows a standard ASP.NET Core MVC layout:
-- `Controllers/`: request handlers for each feature area (`Transacoes`, `Contas`, `LancamentosRecorrentes`, etc.).
-- `Models/`: domain entities, enums, exceptions, and view models.
-- `Services/`: business rules and orchestration.
-- `Repositories/` and `Data/`: EF Core access, `FinanceHubContext`, generic repository, and unit of work.
-- `Views/`: Razor views grouped by controller.
-- `wwwroot/`: static CSS, JS, and vendor assets.
-- `Migrations/`: EF Core schema history.
-- `Tests/`: reserved folder; no test project is wired yet.
+## Estrutura e Arquitetura
 
-## Build, Test, and Development Commands
-- `dotnet build .\FinanceHub.sln`: build the full solution.
-- `dotnet run --project .\FinanceHub\FinanceHub.csproj`: start the app locally.
-- `dotnet watch run --project .\FinanceHub\FinanceHub.csproj`: run with hot reload during UI and controller work.
-- `dotnet ef database update --project .\FinanceHub\FinanceHub.csproj --startup-project .\FinanceHub\FinanceHub.csproj`: apply migrations.
+`FinanceHub.sln` e o ponto de entrada da solucao. A aplicacao MVC ASP.NET Core (.NET 8) esta em `FinanceHub/`.
 
-Use SQL Server for local development; the connection string is read from `FinanceHub/appsettings*.json`.
+- `Controllers/`: recebem requisicoes MVC e devem permanecer finos, delegando regras aos servicos.
+- `Models/`: entidades de dominio, enums, excecoes e view models; o dashboard usa `HomeDashboardViewModel`.
+- `Services/`: regras de negocio, escopo do usuario atual, autenticacao, calculos e processamento de recorrencias.
+- `Repositories/` e `Data/`: EF Core, repositorio generico, unit of work, `FinanceHubContext` e seed de desenvolvimento.
+- `ModelBinders/`: contem o binder decimal para valores monetarios em pt-BR.
+- `Views/`: Razor views por controller; layouts em `Views/Shared/`.
+- `wwwroot/`: CSS, JavaScript e dependencias estaticas.
+- `Migrations/`: historico de schema do EF Core.
+- `Tests/`: reservado para um futuro projeto de testes; nao ha projeto de testes conectado a solucao.
 
-## Coding Style & Naming Conventions
-Use 4-space indentation and keep nullable reference types enabled. Follow existing C# naming:
-- `PascalCase` for classes, methods, enums, properties, and Razor view folders.
-- `camelCase` for locals and parameters.
-- Suffix services with `Service`, repositories with `Repository`, and controllers with `Controller`.
+Os modulos atuais sao usuarios e perfis, categorias, contas/saldos, transacoes, lancamentos recorrentes, metas, relatorios e dashboard.
 
-Prefer thin controllers and keep business rules in `Services/`. Reuse the existing decimal model binder for money inputs instead of ad hoc parsing.
+## Regras de Dominio
 
-## Testing Guidelines
-There is no active automated test project yet. For now, validate changes with:
-- `dotnet build`
-- targeted manual checks in the affected MVC flow
-- migration verification when schema changes are involved
+- Dados financeiros pertencem ao usuario autenticado. Preserve o filtro do `UsuarioAtualService` em leituras e alteracoes.
+- Categorias definem receita ou despesa. Nao aceite o tipo financeiro enviado pela tela como fonte de verdade.
+- Inclusao, edicao e exclusao de transacoes devem manter `Conta.SaldoAtual` consistente e usar `IUnitOfWork` para atualizar saldo e lancamento atomicamente.
+- Uma transacao so pode usar conta ativa do usuario atual. Recorrencias devem validar conta, categoria e estado ativo antes de gerar transacoes.
+- Valores monetarios devem ser `decimal` e usar `DecimalModelBinder`; falhas de regra usam `RegraNegocioException`.
 
-When adding tests, create a dedicated test project under `Tests/` and name files after the target class, for example `TransacaoServiceTests.cs`.
+## Desenvolvimento e Validacao
 
-## Commit & Pull Request Guidelines
-Recent history uses short, imperative Portuguese commit messages, for example `Ajusta recorrencias, saldos e transacoes`. Keep that style and scope each commit to one logical change.
+- `dotnet build .\FinanceHub.sln`: compila a solucao.
+- `dotnet run --project .\FinanceHub\FinanceHub.csproj`: executa a aplicacao.
+- `dotnet watch run --project .\FinanceHub\FinanceHub.csproj`: executa com hot reload.
+- `dotnet ef database update --project .\FinanceHub\FinanceHub.csproj --startup-project .\FinanceHub\FinanceHub.csproj`: aplica migrations.
+- `dotnet user-secrets set "ConnectionStrings:FinanceHubContext" "<connection-string>" --project .\FinanceHub\FinanceHub.csproj`: configura o banco local sem versionar credenciais.
+- `dotnet publish .\FinanceHub\FinanceHub.csproj -c Release -o .\.codex-build\publish`: gera a publicacao para IIS.
 
-PRs should include:
-- a direct summary of the functional change
-- affected screens or modules
-- migration notes, if any
-- screenshots for Razor UI changes
-- manual validation steps performed
+O banco e SQL Server. Em ambientes fora de desenvolvimento, forneca a connection string por `ConnectionStrings__FinanceHubContext`. Para IIS, instale o ASP.NET Core Hosting Bundle do .NET 8, use um Application Pool com `No Managed Code`, configure essa variavel no servidor e reinicie o pool. HTTPS e certificado pertencem ao binding do IIS. Em desenvolvimento, o seed aplica migrations e cria dados de exemplo; nao trate esses dados como credenciais de producao.
 
-## Security & Configuration Tips
-Do not commit real credentials. Move local secrets out of `appsettings.json` when possible. Any admin-only controller must be protected explicitly with role-based authorization; authenticated access alone is not enough for sensitive CRUD areas.
+Nao ha testes automatizados. Execute o build, valide manualmente o fluxo MVC afetado e valide migrations quando houver alteracao de schema. Ao adicionar testes, crie um projeto em `Tests/` e nomeie arquivos pelo alvo, por exemplo `TransacaoServiceTests.cs`.
+
+## Estilo e Seguranca
+
+Use quatro espacos, nullable habilitado, `PascalCase` para tipos/membros/pastas de views e `camelCase` para locais e parametros. Sufixe servicos, repositorios e controllers com `Service`, `Repository` e `Controller`.
+
+A aplicacao usa cookie, politica global de usuario autenticado e cultura `pt-BR`. Preserve antiforgery nas alteracoes e mantenha apenas Login e AcessoNegado anonimos. Os CRUDs de Usuarios, Perfis e Categorias sao exclusivos do papel `Administrador`; o menu pode ocultar links, mas a autorizacao do controller e obrigatoria. O POST de login deve manter o rate limit de cinco tentativas por IP a cada 15 minutos.
+
+Nunca versione segredos. Use User Secrets localmente e variaveis de ambiente na hospedagem.
+
+## Commits e Pull Requests
+
+Use commits curtos e imperativos em portugues, uma mudanca logica por commit, por exemplo `Ajusta recorrencias, saldos e transacoes`.
+
+Em pull requests, informe mudanca funcional, telas ou modulos afetados, migrations necessarias, capturas visuais e validacoes manuais executadas.

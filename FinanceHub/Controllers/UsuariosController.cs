@@ -1,10 +1,12 @@
 using FinanceHub.Models;
 using FinanceHub.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceHub.Controllers
 {
+    [Authorize(Policy = "Administrador")]
     public class UsuariosController : Controller
     {
         private readonly UsuarioService _usuarioService;
