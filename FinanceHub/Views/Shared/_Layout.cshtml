@@ -64,8 +64,8 @@
                             {
                                 <a class="sidebar-link @(currentController == "Usuarios" ? "active" : null)" asp-controller="Usuarios" asp-action="Index"><i class="fa-solid fa-user"></i><span>Usuarios</span></a>
                                 <a class="sidebar-link @(currentController == "Perfis" ? "active" : null)" asp-controller="Perfis" asp-action="Index"><i class="fa-solid fa-user-shield"></i><span>Perfis</span></a>
-                                <a class="sidebar-link @(currentController == "Categorias" ? "active" : null)" asp-controller="Categorias" asp-action="Index"><i class="fa-solid fa-tags"></i><span>Categorias</span></a>
                             }
+                            <a class="sidebar-link @(currentController == "Categorias" ? "active" : null)" asp-controller="Categorias" asp-action="Index"><i class="fa-solid fa-tags"></i><span>Categorias</span></a>
                             <a class="sidebar-link @(currentController == "Contas" ? "active" : null)" asp-controller="Contas" asp-action="Index"><i class="fa-solid fa-wallet"></i><span>Contas</span></a>
                         </div>
                     </div>
@@ -134,6 +134,7 @@
                     <span class="topbar-eyebrow">Controle financeiro</span>
                     <strong class="topbar-title">@ViewData["Title"]</strong>
                 </div>
+                @await Component.InvokeAsync("NotificacoesResumo")
                 <div class="topbar-user">
                     <span class="topbar-user-icon">
                         <i class="fa-solid fa-user"></i>

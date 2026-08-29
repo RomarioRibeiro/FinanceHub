@@ -1,18 +1,32 @@
 @model FinanceHub.Models.Meta
 
 @{
-    ViewData["Title"] = "Detalhes Meta";
+    ViewData["Title"] = "Detalhes da meta";
 }
+<link rel="stylesheet" href="~/css/metas.css" asp-append-version="true" />
 
-<h1>@ViewData["Title"]</h1>
+<h1>@Model.Nome</h1>
 
 <dl class="row">
-    <dt class="col-sm-2">Nome</dt>
-    <dd class="col-sm-10">@Model.Nome</dd>
-    <dt class="col-sm-2">Valor Alvo</dt>
-    <dd class="col-sm-10">@Model.ValorAlvo</dd>
-    <dt class="col-sm-2">Valor Atual</dt>
-    <dd class="col-sm-10">@Model.ValorAtual</dd>
+    <dt class="col-sm-3">Valor desejado</dt>
+    <dd class="col-sm-9">@Model.ValorAlvo.ToString("C")</dd>
+    <dt class="col-sm-3">Valor acumulado</dt>
+    <dd class="col-sm-9">@Model.ValorAtual.ToString("C")</dd>
+    <dt class="col-sm-3">Progresso</dt>
+    <dd class="col-sm-9">@Model.CalcularProgresso().ToString("0.0")%</dd>
+    <dt class="col-sm-3">Período</dt>
+    <dd class="col-sm-9">@Model.DataInicio.ToString("dd/MM/yyyy") a @Model.DataFim.ToString("dd/MM/yyyy")</dd>
+    <dt class="col-sm-3">Lembrete</dt>
+    <dd class="col-sm-9">
+        @if (Model.LembreteAtivo && Model.ProximoLembreteEm.HasValue)
+        {
+            <span>@Html.DisplayFor(model => model.CanalLembrete), @Html.DisplayFor(model => model.FrequenciaLembrete), próximo em @Model.ProximoLembreteEm.Value.ToString("dd/MM/yyyy HH:mm")</span>
+        }
+        else
+        {
+            <span>Desativado</span>
+        }
+    </dd>
 </dl>
 
 <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>

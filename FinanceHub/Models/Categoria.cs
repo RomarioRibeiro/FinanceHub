@@ -8,6 +8,7 @@ namespace FinanceHub.Models
     public class Categoria
     {
         public int Id { get; set; }
+        public int UsuarioId { get; set; }
 
         [Required(ErrorMessage = "{0} é Obrigatorio")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "{0} Tamanho de caracteres e entre {2} a {1}")]
@@ -19,6 +20,7 @@ namespace FinanceHub.Models
 
         public TipoCategoria TipoCategoria { get; set; }
 
+        public Usuario Usuario { get; set; } = null!;
         public ICollection<Transacao> Transacoes { get; set; } = new List<Transacao>();
         public ICollection<LancamentoRecorrente> LancamentosRecorrentes { get; set; } = new List<LancamentoRecorrente>();
 

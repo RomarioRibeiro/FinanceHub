@@ -34,6 +34,48 @@ body {
   margin-left: auto;
 }
 
+.notification-link {
+  align-items: center;
+  background: #e8f0eb;
+  border-radius: 50%;
+  color: #173f32;
+  display: flex;
+  flex: 0 0 40px;
+  height: 40px;
+  justify-content: center;
+  margin-left: auto;
+  position: relative;
+  width: 40px;
+}
+
+.notification-link:hover,
+.notification-link:focus {
+  background: #d9e7de;
+  color: #0f3025;
+}
+
+.notification-badge {
+  align-items: center;
+  background: #b42318;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  display: flex;
+  font-size: 0.62rem;
+  font-weight: 800;
+  height: 19px;
+  justify-content: center;
+  min-width: 19px;
+  padding: 0 4px;
+  position: absolute;
+  right: -5px;
+  top: -5px;
+}
+
+.topbar .topbar-user {
+  margin-left: 0;
+}
+
 .topbar-user-icon {
   align-items: center;
   background: #e8f0eb;

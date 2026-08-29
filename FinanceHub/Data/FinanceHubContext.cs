@@ -18,6 +18,7 @@ namespace FinanceHub.Data
         public DbSet<Saldo> Saldo { get; set; } = default!;
         public DbSet<Transacao> Transacao { get; set; } = default!;
         public DbSet<Meta> Meta { get; set; } = default!;
+        public DbSet<NotificacaoMeta> NotificacaoMeta { get; set; } = default!;
         public DbSet<LancamentoRecorrente> LancamentoRecorrente { get; set; } = default!;
         public DbSet<Relatorio> Relatorio { get; set; } = default!;
 
@@ -64,6 +65,11 @@ namespace FinanceHub.Data
                 entity.Property(e => e.Nome).HasMaxLength(50).IsRequired();
                 entity.Property(e => e.Descricao).IsRequired();
                 entity.Property(e => e.TipoCategoria).HasConversion<int>();
+
+                entity.HasOne(e => e.Usuario)
+                    .WithMany(e => e.Categorias)
+                    .HasForeignKey(e => e.UsuarioId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Conta>(entity =>
@@ -118,10 +124,32 @@ namespace FinanceHub.Data
                 entity.Property(e => e.Nome).HasMaxLength(100).IsRequired();
                 entity.Property(e => e.ValorAlvo).HasPrecision(18, 2);
                 entity.Property(e => e.ValorAtual).HasPrecision(18, 2);
+                entity.Property(e => e.MensagemLembrete).HasMaxLength(300);
+                entity.Property(e => e.CanalLembrete).HasConversion<int>();
+                entity.Property(e => e.FrequenciaLembrete).HasConversion<int>();
 
                 entity.HasOne(e => e.Usuario)
                     .WithMany(e => e.Metas)
                     .HasForeignKey(e => e.UsuarioId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<NotificacaoMeta>(entity =>
+            {
+                entity.ToTable("NotificacaoMeta");
+                entity.Property(e => e.Mensagem).HasMaxLength(500).IsRequired();
+                entity.Property(e => e.UltimoErro).HasMaxLength(500);
+                entity.Property(e => e.Canal).HasConversion<int>();
+                entity.HasIndex(e => new { e.MetaId, e.DataAgendada }).IsUnique();
+
+                entity.HasOne(e => e.Usuario)
+                    .WithMany(e => e.NotificacoesMeta)
+                    .HasForeignKey(e => e.UsuarioId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Meta)
+                    .WithMany(e => e.Notificacoes)
+                    .HasForeignKey(e => e.MetaId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -144,6 +172,7 @@ namespace FinanceHub.Data
                 entity.HasOne(e => e.Conta)
                     .WithMany()
                     .HasForeignKey(e => e.ContaId)
+                    .IsRequired(false)
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.Property(e => e.Frequencia).HasConversion<int>();

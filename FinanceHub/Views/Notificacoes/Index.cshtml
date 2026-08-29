@@ -1,0 +1,57 @@
+@model IEnumerable<FinanceHub.Models.NotificacaoMeta>
+
+@{
+    ViewData["Title"] = "Notificações";
+    var naoLidas = Model.Count(item => !item.LidaEm.HasValue);
+}
+<link rel="stylesheet" href="~/css/metas.css" asp-append-version="true" />
+
+<div class="meta-page-heading">
+    <div>
+        <span>Lembretes de metas</span>
+        <h1>@ViewData["Title"]</h1>
+    </div>
+    @if (naoLidas > 0)
+    {
+        <form asp-action="MarcarTodasComoLidas" method="post">
+            <button class="btn btn-secondary" type="submit">
+                <i class="fa-solid fa-check-double"></i> Marcar todas como lidas
+            </button>
+        </form>
+    }
+</div>
+
+@if (TempData["Erro"] is string erro)
+{
+    <div class="alert alert-danger">@erro</div>
+}
+
+<div class="notification-list">
+    @if (!Model.Any())
+    {
+        <div class="meta-empty">
+            <i class="fa-regular fa-bell"></i>
+            <h2>Nenhuma notificação</h2>
+        </div>
+    }
+    @foreach (var item in Model)
+    {
+        <article class="notification-item @(!item.LidaEm.HasValue ? "is-unread" : null)">
+            <span class="notification-item-icon"><i class="fa-solid fa-bullseye"></i></span>
+            <div>
+                <strong>@item.Meta.Nome</strong>
+                <p>@item.Mensagem</p>
+                <time datetime="@item.CriadaEm.ToString("O")">@item.CriadaEm.ToString("dd/MM/yyyy HH:mm")</time>
+            </div>
+            @if (!item.LidaEm.HasValue)
+            {
+                <form asp-action="MarcarComoLida" method="post">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <button class="btn btn-secondary" type="submit" title="Marcar como lida">
+                        <i class="fa-solid fa-check"></i>
+                    </button>
+                </form>
+            }
+        </article>
+    }
+</div>

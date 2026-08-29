@@ -4,6 +4,7 @@ using FinanceHub.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceHub.Migrations
 {
     [DbContext(typeof(FinanceHubContext))]
-    partial class FinanceHubContextModelSnapshot : ModelSnapshot
+    [Migration("20260716011059_CategoriasPorUsuario")]
+    partial class CategoriasPorUsuario
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -157,35 +160,16 @@ namespace FinanceHub.Migrations
                     b.Property<bool>("Ativa")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("CanalLembrete")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("DataFim")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataInicio")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DiaReferenciaLembrete")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FrequenciaLembrete")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("LembreteAtivo")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MensagemLembrete")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ProximoLembreteEm")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("UsuarioId")
                         .HasColumnType("int");
@@ -203,60 +187,6 @@ namespace FinanceHub.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Meta", (string)null);
-                });
-
-            modelBuilder.Entity("FinanceHub.Models.NotificacaoMeta", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Canal")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CriadaEm")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DataAgendada")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("EnviadaEm")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LidaEm")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Mensagem")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("MetaId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ProcessadaEm")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Tentativas")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UltimoErro")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.HasIndex("MetaId", "DataAgendada")
-                        .IsUnique();
-
-                    b.ToTable("NotificacaoMeta", (string)null);
                 });
 
             modelBuilder.Entity("FinanceHub.Models.Perfil", b =>
@@ -492,25 +422,6 @@ namespace FinanceHub.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("FinanceHub.Models.NotificacaoMeta", b =>
-                {
-                    b.HasOne("FinanceHub.Models.Meta", "Meta")
-                        .WithMany("Notificacoes")
-                        .HasForeignKey("MetaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FinanceHub.Models.Usuario", "Usuario")
-                        .WithMany("NotificacoesMeta")
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Meta");
-
-                    b.Navigation("Usuario");
-                });
-
             modelBuilder.Entity("FinanceHub.Models.Relatorio", b =>
                 {
                     b.HasOne("FinanceHub.Models.Usuario", "Usuario")
@@ -591,11 +502,6 @@ namespace FinanceHub.Migrations
                     b.Navigation("Transacoes");
                 });
 
-            modelBuilder.Entity("FinanceHub.Models.Meta", b =>
-                {
-                    b.Navigation("Notificacoes");
-                });
-
             modelBuilder.Entity("FinanceHub.Models.Usuario", b =>
                 {
                     b.Navigation("Categorias");
@@ -605,8 +511,6 @@ namespace FinanceHub.Migrations
                     b.Navigation("LancamentosRecorrentes");
 
                     b.Navigation("Metas");
-
-                    b.Navigation("NotificacoesMeta");
 
                     b.Navigation("Relatorios");
 

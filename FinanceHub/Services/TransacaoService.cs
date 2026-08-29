@@ -172,10 +172,12 @@ namespace FinanceHub.Services
                 throw new RegraNegocioException("Nao e permitido movimentar uma conta inativa.");
             }
 
-            var categoria = await _categoriaRepository.FindByIdAsync(transacao.CategoriaId);
+            var categoria = await _categoriaRepository.FindFirstAsync(
+                item => item.Id == transacao.CategoriaId && item.UsuarioId == usuarioId);
             if (categoria == null)
             {
-                throw new RegraNegocioException("Categoria nao encontrada.");
+                throw new RegraNegocioException(
+                    "A categoria informada nao pertence ao usuario autenticado.");
             }
 
             return (conta, categoria);

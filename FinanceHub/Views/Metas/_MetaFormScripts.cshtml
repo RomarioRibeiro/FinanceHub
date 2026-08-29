@@ -1,0 +1,20 @@
+<script>
+    (() => {
+        const toggle = document.getElementById("lembreteAtivo");
+        const campos = document.getElementById("lembreteCampos");
+
+        if (!toggle || !campos) {
+            return;
+        }
+
+        const atualizar = () => {
+            campos.classList.toggle("is-disabled", !toggle.checked);
+            campos.querySelectorAll("input, select, textarea").forEach(campo => {
+                campo.disabled = !toggle.checked;
+            });
+        };
+
+        toggle.addEventListener("change", atualizar);
+        atualizar();
+    })();
+</script>

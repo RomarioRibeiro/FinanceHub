@@ -179,6 +179,12 @@ namespace FinanceHub.Services
             {
                 throw new RegraNegocioException("A recorrencia nao possui categoria vinculada.");
             }
+
+            if (recorrencia.Categoria.UsuarioId != recorrencia.UsuarioId)
+            {
+                throw new RegraNegocioException(
+                    "A categoria vinculada a recorrencia pertence a outro usuario.");
+            }
         }
 
         private static List<DateTime> ObterGeracoesPendentes(

@@ -110,10 +110,12 @@ namespace FinanceHub.Services
 
             ValidarDiaReferencia(lancamento.Frequencia, lancamento.DiaReferencia);
 
-            var categoria = await _categoriaRepository.FindByIdAsync(lancamento.CategoriaId);
+            var categoria = await _categoriaRepository.FindFirstAsync(
+                item => item.Id == lancamento.CategoriaId && item.UsuarioId == usuarioId);
             if (categoria == null)
             {
-                throw new RegraNegocioException("Categoria nao encontrada.");
+                throw new RegraNegocioException(
+                    "A categoria informada nao pertence ao usuario autenticado.");
             }
 
             if (!lancamento.ContaId.HasValue || lancamento.ContaId.Value <= 0)

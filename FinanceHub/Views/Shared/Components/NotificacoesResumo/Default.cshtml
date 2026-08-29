@@ -1,0 +1,10 @@
+@model int
+
+<a class="notification-link" asp-controller="Notificacoes" asp-action="Index"
+   title="Notificacoes" aria-label="Notificacoes: @Model nao lida(s)">
+    <i class="fa-solid fa-bell"></i>
+    @if (Model > 0)
+    {
+        <span class="notification-badge">@(Model > 99 ? "99+" : Model)</span>
+    }
+</a>

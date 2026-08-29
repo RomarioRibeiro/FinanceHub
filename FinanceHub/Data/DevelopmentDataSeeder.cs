@@ -42,6 +42,7 @@ namespace FinanceHub.Data
 
             var categoriaDespesa = new Categoria
             {
+                Usuario = usuario,
                 Nome = "Alimentacao",
                 Descricao = "Gastos com refeicoes",
                 TipoCategoria = TipoCategoria.DESPESA
@@ -49,6 +50,7 @@ namespace FinanceHub.Data
 
             var categoriaReceita = new Categoria
             {
+                Usuario = usuario,
                 Nome = "Salario",
                 Descricao = "Receitas recorrentes",
                 TipoCategoria = TipoCategoria.RECEITA

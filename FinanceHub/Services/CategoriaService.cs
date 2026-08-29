@@ -7,25 +7,33 @@ namespace FinanceHub.Services
     public class CategoriaService
     {
         private readonly IRepository<Categoria> _repository;
+        private readonly UsuarioAtualService _usuarioAtualService;
 
-        public CategoriaService(IRepository<Categoria> repository)
+        public CategoriaService(
+            IRepository<Categoria> repository,
+            UsuarioAtualService usuarioAtualService)
         {
             _repository = repository;
+            _usuarioAtualService = usuarioAtualService;
         }
 
-        public async Task<List<Categoria>> FindAllAsync()
+        public Task<List<Categoria>> FindAllAsync()
         {
-            return await _repository.FindAllAsync();
+            var usuarioId = _usuarioAtualService.ObterUsuarioId();
+            return _repository.FindAllAsync(categoria => categoria.UsuarioId == usuarioId);
         }
 
-        public async Task<Categoria?> FindByIdAsync(int id)
+        public Task<Categoria?> FindByIdAsync(int id)
         {
-            return await _repository.FindByIdAsync(id);
+            var usuarioId = _usuarioAtualService.ObterUsuarioId();
+            return _repository.FindFirstAsync(
+                categoria => categoria.Id == id && categoria.UsuarioId == usuarioId);
         }
 
         public async Task InsertAsync(Categoria categoria)
         {
             Validar(categoria);
+            categoria.UsuarioId = _usuarioAtualService.ObterUsuarioId();
             categoria.Nome = categoria.Nome.Trim();
             categoria.Descricao = categoria.Descricao.Trim();
             await _repository.InsertAsync(categoria);
@@ -34,7 +42,9 @@ namespace FinanceHub.Services
         public async Task Update(Categoria categoria)
         {
             Validar(categoria);
-            var atual = await _repository.FindByIdAsync(categoria.Id);
+            var usuarioId = _usuarioAtualService.ObterUsuarioId();
+            var atual = await _repository.FindFirstAsync(
+                item => item.Id == categoria.Id && item.UsuarioId == usuarioId);
             if (atual == null)
             {
                 throw new RegraNegocioException("Categoria nao encontrada.");
@@ -48,8 +58,9 @@ namespace FinanceHub.Services
 
         public async Task RemoveAsync(int id)
         {
-            var entity = await _repository.FindByIdAsync(
-                id,
+            var usuarioId = _usuarioAtualService.ObterUsuarioId();
+            var entity = await _repository.FindFirstAsync(
+                categoria => categoria.Id == id && categoria.UsuarioId == usuarioId,
                 categoria => categoria.Transacoes,
                 categoria => categoria.LancamentosRecorrentes);
             if (entity == null)

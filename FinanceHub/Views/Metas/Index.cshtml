@@ -1,39 +1,83 @@
 @model IEnumerable<FinanceHub.Models.Meta>
 
 @{
-    ViewData["Title"] = "Lista de Metas";
+    ViewData["Title"] = "Metas financeiras";
 }
+<link rel="stylesheet" href="~/css/metas.css" asp-append-version="true" />
 
-<h2>@ViewData["Title"]</h2>
+<div class="meta-page-heading">
+    <div>
+        <span>Planejamento</span>
+        <h1>@ViewData["Title"]</h1>
+    </div>
+    <a class="btn btn-primary" asp-action="Create">
+        <i class="fa-solid fa-plus"></i> Nova meta
+    </a>
+</div>
+
 @if (TempData["Erro"] is string erro)
 {
     <div class="alert alert-danger">@erro</div>
 }
-<p><a class="btn btn-primary" asp-action="Create">Novo</a></p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Valor Alvo</th>
-            <th>Valor Atual</th>
-            <th>Ativa</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.Nome</td>
-            <td>@item.ValorAlvo</td>
-            <td>@item.ValorAtual</td>
-            <td>@item.Ativa</td>
-            <td>
-                <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
-                <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">Detalhes</a>
-                <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Excluir</a>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
+
+@if (!Model.Any())
+{
+    <div class="meta-empty">
+        <i class="fa-solid fa-bullseye"></i>
+        <h2>Nenhuma meta cadastrada</h2>
+        <a class="btn btn-primary" asp-action="Create">Criar primeira meta</a>
+    </div>
+}
+else
+{
+    <div class="meta-grid">
+        @foreach (var item in Model.OrderByDescending(meta => meta.Ativa).ThenBy(meta => meta.DataFim))
+        {
+            var progresso = item.CalcularProgresso();
+            <article class="meta-card @(item.Ativa ? null : "is-inactive")">
+                <div class="meta-card-header">
+                    <div>
+                        <span class="meta-status">@(item.Ativa ? "Em andamento" : "Encerrada")</span>
+                        <h2>@item.Nome</h2>
+                    </div>
+                    <i class="fa-solid @(item.EstaConcluida() ? "fa-circle-check" : "fa-bullseye")"></i>
+                </div>
+                <div class="meta-values">
+                    <div>
+                        <span>Acumulado</span>
+                        <strong>@item.ValorAtual.ToString("C")</strong>
+                    </div>
+                    <div>
+                        <span>Objetivo</span>
+                        <strong>@item.ValorAlvo.ToString("C")</strong>
+                    </div>
+                </div>
+                <div class="progress meta-progress" role="progressbar"
+                     aria-label="Progresso da meta" aria-valuenow="@progresso"
+                     aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="width: @progresso.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                </div>
+                <div class="meta-progress-copy">
+                    <strong>@progresso.ToString("0.0")%</strong>
+                    <span>até @item.DataFim.ToString("dd/MM/yyyy")</span>
+                </div>
+                @if (item.LembreteAtivo && item.ProximoLembreteEm.HasValue)
+                {
+                    <div class="meta-reminder-summary">
+                        <i class="fa-solid fa-bell"></i>
+                        <span>Próximo: @item.ProximoLembreteEm.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                }
+                <div class="meta-card-actions">
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">
+                        <i class="fa-solid fa-pen"></i> Atualizar
+                    </a>
+                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id"
+                       title="Detalhes"><i class="fa-solid fa-circle-info"></i></a>
+                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id"
+                       title="Excluir"><i class="fa-solid fa-trash"></i></a>
+                </div>
+            </article>
+        }
+    </div>
+}

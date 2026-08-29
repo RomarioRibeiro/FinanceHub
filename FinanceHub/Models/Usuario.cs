@@ -13,10 +13,12 @@ namespace FinanceHub.Models
         public DateTime DataCadastro { get; set; }
         public bool Ativo { get; set; }
         public ICollection<Perfil> Perfis { get; set; } = new List<Perfil>();
+        public ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
         public ICollection<Conta> Contas { get; set; } = new List<Conta>();
         public ICollection<Transacao> Transacoes { get; set; } = new List<Transacao>();
         public ICollection<LancamentoRecorrente> LancamentosRecorrentes { get; set; } = new List<LancamentoRecorrente>();
         public ICollection<Meta> Metas { get; set; } = new List<Meta>();
+        public ICollection<NotificacaoMeta> NotificacoesMeta { get; set; } = new List<NotificacaoMeta>();
         public ICollection<Relatorio> Relatorios { get; set; } = new List<Relatorio>();
 
         public Usuario()

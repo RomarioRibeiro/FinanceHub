@@ -1,4 +1,5 @@
 using FinanceHub.Models;
+using FinanceHub.Models.Enums;
 using FinanceHub.Models.Exceptions;
 using FinanceHub.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,20 @@ namespace FinanceHub.Controllers
             return View(meta);
         }
 
-        public IActionResult Create() => View(new Meta { DataInicio = DateTime.Now, Ativa = true });
+        public IActionResult Create()
+        {
+            var agora = DateTime.Now;
+            return View(new Meta
+            {
+                DataInicio = agora,
+                DataFim = agora.AddYears(1),
+                Ativa = true,
+                LembreteAtivo = true,
+                CanalLembrete = CanalLembreteMeta.SISTEMA,
+                FrequenciaLembrete = FrequenciaLembreteMeta.DIARIA,
+                ProximoLembreteEm = DateTime.Today.AddDays(1).AddHours(9)
+            });
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

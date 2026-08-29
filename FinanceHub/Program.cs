@@ -1,5 +1,6 @@
 using FinanceHub.Data;
 using FinanceHub.ModelBinders;
+using FinanceHub.Models.Options;
 using FinanceHub.Repositories;
 using FinanceHub.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -24,6 +25,8 @@ builder.Services.AddDbContext<FinanceHubContext>(options =>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.Configure<EmailOptions>(
+    builder.Configuration.GetSection(EmailOptions.SectionName));
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -90,10 +93,14 @@ builder.Services.AddScoped<ContaService>();
 builder.Services.AddScoped<SaldoService>();
 builder.Services.AddScoped<TransacaoService>();
 builder.Services.AddScoped<MetaService>();
+builder.Services.AddScoped<NotificacaoMetaService>();
+builder.Services.AddScoped<MetaLembreteProcessorService>();
+builder.Services.AddScoped<IEmailMetaSender, SmtpEmailMetaSender>();
 builder.Services.AddScoped<LancamentoRecorrenteService>();
 builder.Services.AddScoped<RelatorioService>();
 builder.Services.AddScoped<RecorrenciaProcessorService>();
 builder.Services.AddHostedService<RecorrenciaBackgroundService>();
+builder.Services.AddHostedService<MetaLembreteBackgroundService>();
 
 var app = builder.Build();
 

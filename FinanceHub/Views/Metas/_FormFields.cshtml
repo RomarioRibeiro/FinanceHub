@@ -1,0 +1,73 @@
+@using FinanceHub.Models.Enums
+@model FinanceHub.Models.Meta
+
+<div class="mb-3">
+    <label asp-for="Nome" class="form-label">Nome da meta</label>
+    <input asp-for="Nome" class="form-control" />
+    <span asp-validation-for="Nome" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="ValorAlvo" class="form-label">Valor desejado</label>
+    <input asp-for="ValorAlvo" class="form-control" inputmode="decimal" />
+    <span asp-validation-for="ValorAlvo" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="DataInicio" class="form-label">Início</label>
+    <input asp-for="DataInicio" asp-format="{0:yyyy-MM-ddTHH:mm}"
+           class="form-control" type="datetime-local" />
+    <span asp-validation-for="DataInicio" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="DataFim" class="form-label">Prazo final</label>
+    <input asp-for="DataFim" asp-format="{0:yyyy-MM-ddTHH:mm}"
+           class="form-control" type="datetime-local" />
+    <span asp-validation-for="DataFim" class="text-danger"></span>
+</div>
+
+<section class="meta-reminder-panel">
+    <div class="meta-reminder-heading">
+        <span class="meta-reminder-icon"><i class="fa-solid fa-bell"></i></span>
+        <div>
+            <strong>Lembrete para continuar</strong>
+            <span>Escolha onde e quando receber.</span>
+        </div>
+        <div class="form-check form-switch">
+            <input asp-for="LembreteAtivo" class="form-check-input"
+                   id="lembreteAtivo" role="switch" />
+            <label asp-for="LembreteAtivo" class="form-check-label">Ativo</label>
+        </div>
+    </div>
+
+    <div class="meta-reminder-fields" id="lembreteCampos">
+        <div>
+            <label asp-for="CanalLembrete" class="form-label">Receber por</label>
+            <select asp-for="CanalLembrete"
+                    asp-items="Html.GetEnumSelectList<CanalLembreteMeta>()"
+                    class="form-select">
+                <option value="">Selecione</option>
+            </select>
+            <span asp-validation-for="CanalLembrete" class="text-danger"></span>
+        </div>
+        <div>
+            <label asp-for="FrequenciaLembrete" class="form-label">Frequência</label>
+            <select asp-for="FrequenciaLembrete"
+                    asp-items="Html.GetEnumSelectList<FrequenciaLembreteMeta>()"
+                    class="form-select">
+                <option value="">Selecione</option>
+            </select>
+            <span asp-validation-for="FrequenciaLembrete" class="text-danger"></span>
+        </div>
+        <div>
+            <label asp-for="ProximoLembreteEm" class="form-label">Primeiro ou próximo lembrete</label>
+            <input asp-for="ProximoLembreteEm" asp-format="{0:yyyy-MM-ddTHH:mm}"
+                   class="form-control" type="datetime-local" />
+            <span asp-validation-for="ProximoLembreteEm" class="text-danger"></span>
+        </div>
+        <div class="meta-message-field">
+            <label asp-for="MensagemLembrete" class="form-label">Mensagem personalizada</label>
+            <textarea asp-for="MensagemLembrete" class="form-control" rows="3"
+                      maxlength="300"></textarea>
+            <span asp-validation-for="MensagemLembrete" class="text-danger"></span>
+        </div>
+    </div>
+</section>
