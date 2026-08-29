@@ -1,39 +1,217 @@
-@model IEnumerable<FinanceHub.Models.Relatorio>
+@model FinanceHub.Models.ViewModels.RelatoriosIndexViewModel
 
 @{
-    ViewData["Title"] = "Lista de Relatorios";
+    ViewData["Title"] = "Relatorios";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="report-heading">
+    <div>
+        <span class="report-kicker">Analise financeira</span>
+        <h1>Relatorios</h1>
+        <p>Importe seu controle mensal para analisar custos ou exporte as transacoes cadastradas no FinanceHub.</p>
+    </div>
+    <div class="report-actions">
+        <a class="btn btn-secondary" asp-action="Exportar">
+            <i class="fa-solid fa-file-export"></i> Exportar transacoes
+        </a>
+        <a class="btn btn-primary" asp-action="Create">
+            <i class="fa-solid fa-plus"></i> Novo relatorio
+        </a>
+    </div>
+</div>
+
 @if (TempData["Erro"] is string erro)
 {
     <div class="alert alert-danger">@erro</div>
 }
-<p><a class="btn btn-primary" asp-action="Create">Novo</a></p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Tipo</th>
-            <th>Data Inicio</th>
-            <th>Data Fim</th>
-            <th>Gerado Em</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
+
+<section class="report-import-card">
+    <div class="report-import-copy">
+        <span class="report-import-icon"><i class="fa-solid fa-file-csv"></i></span>
+        <div>
+            <h2>Importar planilha mensal</h2>
+            <p>Use um CSV separado por ponto e virgula, com meses e secoes <strong>A RECEBER</strong> e <strong>A PAGAR</strong>.</p>
+        </div>
+    </div>
+    <form asp-action="Importar" method="post" enctype="multipart/form-data" class="report-import-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div>
+            <label for="arquivo" class="form-label">Arquivo CSV</label>
+            <input id="arquivo" name="arquivo" type="file" accept=".csv,text/csv" class="form-control" />
+            @Html.ValidationMessage("arquivo", null, new { @class = "text-danger" })
+            <small>Limite de 5 MB. A importacao serve para analise e nao altera contas nem saldos.</small>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-chart-column"></i> Importar e analisar
+        </button>
+    </form>
+</section>
+
+@if (Model.Importacao != null)
+{
+    var importacao = Model.Importacao;
+    <section class="report-analysis" aria-labelledby="analise-importada">
+        <div class="report-section-heading">
+            <div>
+                <span class="report-kicker">Arquivo importado</span>
+                <h2 id="analise-importada">@importacao.NomeArquivo</h2>
+            </div>
+            <span class="badge text-bg-success">@importacao.Lancamentos.Count valores analisados</span>
+        </div>
+
+        @if (importacao.LinhasSemValor > 0)
+        {
+            <div class="alert alert-warning">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                @importacao.LinhasSemValor itens com <strong>PGO</strong> ou valor zero nao entraram nos calculos.
+            </div>
+        }
+
+        <div class="report-stat-grid">
+            <article class="report-stat report-stat-income">
+                <span>Receitas identificadas</span>
+                <strong>@importacao.TotalReceitas.ToString("C")</strong>
+            </article>
+            <article class="report-stat report-stat-expense">
+                <span>Custos identificados</span>
+                <strong>@importacao.TotalDespesas.ToString("C")</strong>
+            </article>
+            <article class="report-stat report-stat-result">
+                <span>Resultado</span>
+                <strong class="@(importacao.Resultado >= 0 ? "is-positive" : "is-negative")">@importacao.Resultado.ToString("C")</strong>
+            </article>
+            <article class="report-stat">
+                <span>Periodo analisado</span>
+                <strong>@importacao.ResumosMensais.Count meses</strong>
+                <small>@importacao.LinhasLidas linhas lidas</small>
+            </article>
+        </div>
+
+        <div class="report-analysis-grid">
+            <article class="report-panel">
+                <div class="report-panel-heading">
+                    <h3>Resumo por mes</h3>
+                    <span>Receitas x custos</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Mes</th>
+                                <th class="text-end">Receitas</th>
+                                <th class="text-end">Custos</th>
+                                <th class="text-end">Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var resumo in importacao.ResumosMensais)
+                        {
+                            <tr>
+                                <td>@resumo.Mes.ToString("MMMM/yyyy")</td>
+                                <td class="text-end is-positive">@resumo.Receitas.ToString("C")</td>
+                                <td class="text-end is-negative">@resumo.Despesas.ToString("C")</td>
+                                <td class="text-end @(resumo.Resultado >= 0 ? "is-positive" : "is-negative")">
+                                    <strong>@resumo.Resultado.ToString("C")</strong>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="report-panel">
+                <div class="report-panel-heading">
+                    <h3>Maiores custos</h3>
+                    <span>Acumulado por descricao</span>
+                </div>
+                <ol class="report-cost-list">
+                @foreach (var custo in importacao.MaioresCustos)
+                {
+                    <li>
+                        <span>@custo.Descricao</span>
+                        <strong>@custo.Valor.ToString("C")</strong>
+                    </li>
+                }
+                </ol>
+            </article>
+        </div>
+
+        <details class="report-details">
+            <summary>Ver todos os lancamentos importados</summary>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Mes</th>
+                            <th>Tipo</th>
+                            <th>Descricao</th>
+                            <th class="text-end">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in importacao.Lancamentos)
+                    {
+                        <tr>
+                            <td>@item.Mes.ToString("MM/yyyy")</td>
+                            <td><span class="report-type report-type-@item.Tipo.ToLowerInvariant()">@item.Tipo</span></td>
+                            <td>@item.Descricao</td>
+                            <td class="text-end"><strong>@item.Valor.ToString("C")</strong></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </section>
+}
+
+<section class="report-saved">
+    <div class="report-section-heading">
+        <div>
+            <span class="report-kicker">Historico</span>
+            <h2>Relatorios salvos</h2>
+        </div>
+        <span>@Model.Relatorios.Count registro(s)</span>
+    </div>
+
+    @if (Model.Relatorios.Count == 0)
     {
-        <tr>
-            <td>@item.Tipo</td>
-            <td>@item.DataInicio</td>
-            <td>@item.DataFim</td>
-            <td>@item.GeradoEm</td>
-            <td>
-                <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
-                <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">Detalhes</a>
-                <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Excluir</a>
-            </td>
-        </tr>
+        <div class="report-empty">
+            <i class="fa-regular fa-folder-open"></i>
+            <p>Nenhum relatorio salvo ainda.</p>
+        </div>
     }
-    </tbody>
-</table>
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Data inicio</th>
+                        <th>Data fim</th>
+                        <th>Gerado em</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Relatorios)
+                {
+                    <tr>
+                        <td><strong>@item.Tipo</strong></td>
+                        <td>@item.DataInicio.ToString("dd/MM/yyyy")</td>
+                        <td>@item.DataFim.ToString("dd/MM/yyyy")</td>
+                        <td>@item.GeradoEm.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
+                            <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">Detalhes</a>
+                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Excluir</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

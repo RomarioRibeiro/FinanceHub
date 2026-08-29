@@ -10,6 +10,7 @@ obj/
 # Logs
 *.log
 .codex-build/
+planilha/
 
 # VS Code
 .vscode/

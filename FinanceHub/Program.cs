@@ -98,6 +98,7 @@ builder.Services.AddScoped<MetaLembreteProcessorService>();
 builder.Services.AddScoped<IEmailMetaSender, SmtpEmailMetaSender>();
 builder.Services.AddScoped<LancamentoRecorrenteService>();
 builder.Services.AddScoped<RelatorioService>();
+builder.Services.AddScoped<RelatorioArquivoService>();
 builder.Services.AddScoped<RecorrenciaProcessorService>();
 builder.Services.AddHostedService<RecorrenciaBackgroundService>();
 builder.Services.AddHostedService<MetaLembreteBackgroundService>();
